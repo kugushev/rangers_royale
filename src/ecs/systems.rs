@@ -1,6 +1,19 @@
+mod player;
+mod characters;
+
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
-use crate::ecs::components::{Character, Position};
+use crate::ecs::systems::characters::build_characters_systems;
+use crate::ecs::systems::player::build_player_systems;
+
+pub(crate) fn build_systems(app: &mut App){
+    app.add_startup_system(setup)
+        .add_startup_system(setup_map);
+
+    build_characters_systems(app);
+    build_player_systems(app);
+}
+
 
 pub fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
@@ -39,20 +52,5 @@ pub fn setup_map(mut commands: Commands, asset_server: Res<AssetServer>) {
         tile_size,
         transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
         ..Default::default()
-    });
-
-}
-
-pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let position = Position { x: 0.0, y: 0.0 };
-    let sprite = SpriteBundle {
-        texture: asset_server.load("paid/player.png"),
-        transform: Transform::from_xyz(position.x, position.y, 2.0),
-        ..default()
-    };
-
-    commands.spawn(Character {
-        position,
-        sprite,
     });
 }

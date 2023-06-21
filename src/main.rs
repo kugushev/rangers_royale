@@ -2,7 +2,7 @@ mod game_plugin;
 mod ecs;
 
 use bevy::DefaultPlugins;
-use bevy::prelude::{App, Component, ImagePlugin, PluginGroup};
+use bevy::prelude::{App, ImagePlugin, PluginGroup};
 use bevy_ecs_tilemap::TilemapPlugin;
 use crate::game_plugin::GamePlugin;
 
