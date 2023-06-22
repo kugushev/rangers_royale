@@ -10,7 +10,7 @@ const CHARACTER_SPEED: f32 = 100.0;
 
 fn handle_orders(mut query: Query<(&mut CharacterOrdersHandle, &mut Transform)>, time: Res<Time>) {
     for (mut orders_handle, transform) in &mut query {
-        let order_opt = &mut orders_handle.order;
+        let order_opt = orders_handle.get_mut();
         if let Some(order) = order_opt {
             let handled = handle_impl(order, transform, &time);
             if handled {

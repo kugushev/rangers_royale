@@ -3,10 +3,11 @@ mod characters;
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+use crate::ecs::resources::WorldMap;
 use crate::ecs::systems::characters::build_characters_systems;
 use crate::ecs::systems::player::build_player_systems;
 
-pub(crate) fn build_systems(app: &mut App){
+pub(crate) fn build_systems(app: &mut App) {
     app.add_startup_system(setup)
         .add_startup_system(setup_map);
 
@@ -15,14 +16,17 @@ pub(crate) fn build_systems(app: &mut App){
 }
 
 
-pub fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-pub fn setup_map(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_map(mut commands: Commands, asset_server: Res<AssetServer>, world_map: Res<WorldMap>) {
     let texture_handle = asset_server.load("paid/Grassland@128x128.png"); // todo: load and put to Res to use handle in a shared way
 
-    let map_size = TilemapSize { x: 8, y: 8 };
+    let map_size = TilemapSize {
+        x: world_map.vertical_tiles as u32,
+        y: world_map.horizontal_tiles as u32,
+    };
     let tilemap_entity = commands.spawn_empty().id();
     let mut tile_storage = TileStorage::empty(map_size);
 
@@ -39,7 +43,7 @@ pub fn setup_map(mut commands: Commands, asset_server: Res<AssetServer>) {
         }
     }
 
-    let tile_size = TilemapTileSize { x: 128.0, y: 128.0 };
+    let tile_size = TilemapTileSize { x: world_map.tile_width, y: world_map.tile_height };
     let grid_size = tile_size.into();
     let map_type = TilemapType::default();
 
