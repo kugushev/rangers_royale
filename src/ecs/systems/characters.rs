@@ -1,9 +1,11 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use bevy::prelude::*;
 use crate::ecs::components::{Character, CharacterOrder, CharacterOrdersHandle};
+use crate::ecs::components::deck::{CharacterHand, Deck, HandSlot};
 
 pub(crate) fn build_characters_systems(app: &mut App) {
-    app.add_system(handle_orders);
+    app.add_system(handle_orders)
+        .add_system(refresh_hand);
 }
 
 const CHARACTER_SPEED: f32 = 100.0;
@@ -38,5 +40,38 @@ fn handle_orders(mut query: Query<(&mut CharacterOrdersHandle, &mut Transform)>,
             }
         }
         false
+    }
+}
+
+const REFRESH_COOLDOWN: f32 = 1.0;
+
+fn refresh_hand(mut query: Query<(&mut Deck, &mut CharacterHand)>, time: Res<Time>) {
+    for (mut deck, mut hand) in &mut query {
+        handle_hand_slot(deck.deref_mut(), time.deref(), &mut hand.q);
+        handle_hand_slot(deck.deref_mut(), time.deref(), &mut hand.w);
+        handle_hand_slot(deck.deref_mut(), time.deref(), &mut hand.e);
+        handle_hand_slot(deck.deref_mut(), time.deref(), &mut hand.r);
+    }
+
+    fn handle_hand_slot(deck: &mut Deck, time: &Time, slot: &mut HandSlot) {
+        if let HandSlot::Empty = slot {
+            try_obtain(slot, deck);
+        }
+
+        if let HandSlot::Cooldown(cooldown) = slot {
+            *cooldown += time.delta_seconds();
+            if *cooldown >= REFRESH_COOLDOWN {
+                if !try_obtain(slot, deck) {
+                    *slot = HandSlot::Empty;
+                }
+            }
+        }
+
+        fn try_obtain(slot: &mut HandSlot, deck: &mut Deck) -> bool {
+            if let Some(card) = deck.take() {
+                *slot = HandSlot::Obtained(card);
+                true
+            } else { false }
+        }
     }
 }

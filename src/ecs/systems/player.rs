@@ -2,6 +2,8 @@ use std::ops::Deref;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use crate::ecs::components::{Character, CharacterOrdersHandle, Player};
+use crate::ecs::components::deck::{CharacterHand, Deck};
+use crate::ecs::components::deck::Card::MagicMissile;
 use crate::ecs::resources::WorldMap;
 
 pub(crate) fn build_player_systems(app: &mut App) {
@@ -17,10 +19,15 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..default()
     };
 
-    commands.spawn((Character {
-        sprite,
-        orders_handle: default(),
-    }, Player));
+    commands.spawn((
+        Character {
+            sprite,
+            orders_handle: default(),
+        },
+        Deck((0..42).map(|_| { MagicMissile }).collect()),
+        CharacterHand::default(),
+        Player
+    ));
 }
 
 fn handle_mouse_input(

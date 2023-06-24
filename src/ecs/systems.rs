@@ -1,16 +1,19 @@
 mod player;
 mod characters;
+mod ui;
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use crate::ecs::resources::WorldMap;
 use crate::ecs::systems::characters::build_characters_systems;
 use crate::ecs::systems::player::build_player_systems;
+use crate::ecs::systems::ui::build_ui_systems;
 
 pub(crate) fn build_systems(app: &mut App) {
     app.add_startup_system(setup)
         .add_startup_system(setup_map);
 
+    build_ui_systems(app);
     build_characters_systems(app);
     build_player_systems(app);
 }

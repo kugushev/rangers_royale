@@ -1,3 +1,6 @@
+pub(crate) mod ui;
+pub(crate) mod deck;
+
 use bevy::prelude::*;
 use crate::ecs::resources::WorldMap;
 
