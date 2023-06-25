@@ -1,7 +1,10 @@
 pub(crate) mod ui;
 pub(crate) mod deck;
+pub(crate) mod projectiles;
+pub(crate) mod input;
 
 use bevy::prelude::*;
+use crate::ecs::components::ui::{SkillDeck, SkillKey};
 use crate::ecs::resources::WorldMap;
 
 
@@ -31,6 +34,7 @@ pub(crate) struct CharacterOrdersHandle {
 
 pub(crate) enum CharacterOrder {
     MoveToPosition(Vec2),
+    UseSkill(SkillKey, Vec2)
 }
 
 impl CharacterOrdersHandle {
@@ -51,6 +55,10 @@ impl CharacterOrdersHandle {
         if y > top { y = top; } else if y < bottom { y = bottom; }
 
         self.order = Some(CharacterOrder::MoveToPosition(Vec2::new(x, y)));
+    }
+
+    pub fn order_use_skill(&mut self, key: SkillKey, target: Vec2){
+        self.order = Some(CharacterOrder::UseSkill(key, target));
     }
 }
 

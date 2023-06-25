@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::ecs::components::deck::{CharacterHand, Deck, HandSlot};
+use crate::ecs::components::deck::{SkillsHand, Deck, HandSlot};
 use crate::ecs::components::Player;
 use crate::ecs::components::ui::{SkillBlock, SkillDeck, SkillKey, SkillsRowBlock};
 
@@ -94,7 +94,7 @@ fn add_deck_block(asset_server: &Res<AssetServer>, parent: &mut ChildBuilder) {
     });
 }
 
-fn sync_skills_ui(player: Query<&CharacterHand, With<Player>>, mut skills_ui: Query<(&SkillBlock, &mut Text)>) {
+fn sync_skills_ui(player: Query<&SkillsHand, With<Player>>, mut skills_ui: Query<(&SkillBlock, &mut Text)>) {
     let hand = player.single();
 
     for (block, mut text_ui) in &mut skills_ui {

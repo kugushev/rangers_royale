@@ -22,7 +22,7 @@ impl Card {
 }
 
 #[derive(Component, Default)]
-pub struct CharacterHand {
+pub struct SkillsHand {
     pub q: HandSlot,
     pub w: HandSlot,
     pub e: HandSlot,
