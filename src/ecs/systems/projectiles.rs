@@ -1,6 +1,6 @@
 use std::ops::Deref;
 use bevy::prelude::*;
-use crate::ecs::components::Character;
+use crate::ecs::components::characters::Character;
 use crate::ecs::components::projectiles::MagicMissile;
 
 pub(crate) fn build_projectiles_systems(app: &mut App) {

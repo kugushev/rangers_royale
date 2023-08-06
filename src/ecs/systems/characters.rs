@@ -1,15 +1,20 @@
+pub mod animations;
+
 use std::ops::{Deref, DerefMut};
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
-use crate::ecs::components::{Character, CharacterOrder, CharacterOrdersHandle};
-use crate::ecs::components::deck::{SkillsHand, Deck, HandSlot, Card};
+use crate::ecs::components::characters::{Character, CharacterOrder, CharacterOrdersHandle};
+use crate::ecs::components::deck::{Card, Deck, HandSlot, SkillsHand};
 use crate::ecs::components::deck::HandSlot::Obtained;
 use crate::ecs::components::projectiles::MagicMissile;
-use crate::ecs::components::ui::{SkillDeck, SkillKey};
+use crate::ecs::components::ui::SkillKey;
+use crate::ecs::systems::characters::animations::build_characters_animations;
 
 pub(crate) fn build_characters_systems(app: &mut App) {
     app.add_system(handle_orders)
         .add_system(refresh_hand);
+
+    build_characters_animations(app);
 }
 
 const CHARACTER_SPEED: f32 = 100.0;

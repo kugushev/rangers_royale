@@ -1,12 +1,16 @@
 use std::ops::Deref;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::ecs::components::{Character, CharacterOrdersHandle, Player};
-use crate::ecs::components::deck::{SkillsHand, Deck};
+use crate::ecs::components::Player;
+use crate::ecs::components::characters::{Character, CharacterOrdersHandle};
+use crate::ecs::components::characters::animations::CharacterAnimationHandles;
+use crate::ecs::components::deck::{Deck, SkillsHand};
 use crate::ecs::components::deck::Card::MagicMissile;
 use crate::ecs::components::input::CursorPosition;
 use crate::ecs::components::ui::SkillKey;
 use crate::ecs::resources::WorldMap;
+use crate::ecs::systems::spritesheet_animations::{AnimationIndices, AnimationTimer};
+use crate::registry::character_animations_paths::CharacterAnimationsPaths;
 
 pub(crate) fn build_player_systems(app: &mut App) {
     app.add_startup_system(setup_player)
@@ -17,23 +21,29 @@ pub(crate) fn build_player_systems(app: &mut App) {
         .add_system(camera_move);
 }
 
-fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let sprite = SpriteBundle {
-        texture: asset_server.load("paid/player.png"),
-        transform: Transform::from_translation(Character::vec2_to_translation(&Vec2::new(0.0, 0.0))),
-        ..default()
-    };
+fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+    let animation_handles = CharacterAnimationHandles::new(&asset_server, &mut texture_atlases, &CharacterAnimationsPaths::young_hero());
 
     commands.spawn((
-        Character {
-            sprite,
-            orders_handle: default(),
+        SpriteSheetBundle {
+            texture_atlas: animation_handles.idle_down().clone_weak(),
+            sprite: TextureAtlasSprite::new(0),
+            transform: Transform::from_translation(Character::vec2_to_translation(&Vec2::new(0.0, 0.0))),
+            ..default()
         },
+        AnimationTimer(Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating)),
+        AnimationIndices {
+            first: 0,
+            last: 59,
+        },
+        animation_handles,
+        CharacterOrdersHandle::default(),
         Deck((0..42).map(|_| { MagicMissile }).collect()),
         SkillsHand::default(),
         Player
     ));
 }
+
 
 fn setup_cursor_info(mut commands: Commands) {
     commands.spawn(CursorPosition(Vec2::default()));

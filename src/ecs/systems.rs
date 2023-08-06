@@ -2,6 +2,7 @@ mod player;
 mod characters;
 mod ui;
 mod projectiles;
+mod spritesheet_animations;
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
@@ -9,6 +10,7 @@ use crate::ecs::resources::WorldMap;
 use crate::ecs::systems::characters::build_characters_systems;
 use crate::ecs::systems::player::build_player_systems;
 use crate::ecs::systems::projectiles::build_projectiles_systems;
+use crate::ecs::systems::spritesheet_animations::build_spritesheet_animations_systems;
 use crate::ecs::systems::ui::build_ui_systems;
 
 pub(crate) fn build_systems(app: &mut App) {
@@ -19,6 +21,7 @@ pub(crate) fn build_systems(app: &mut App) {
     build_characters_systems(app);
     build_player_systems(app);
     build_projectiles_systems(app);
+    build_spritesheet_animations_systems(app)
 }
 
 

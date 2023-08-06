@@ -1,5 +1,6 @@
 mod game_plugin;
 mod ecs;
+mod registry;
 
 use bevy::DefaultPlugins;
 use bevy::prelude::{App, ImagePlugin, PluginGroup};
