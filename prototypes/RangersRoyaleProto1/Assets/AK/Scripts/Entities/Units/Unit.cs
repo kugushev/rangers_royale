@@ -125,6 +125,12 @@ namespace AK.Scripts.Entities.Units
 
         private bool HandleAttackCommand(Unit target, Vector3 myPosition)
         {
+            if (target.Dead)
+            {
+                _currentCommand = null;
+                return false;
+            }
+            
             var targetPosition = target.transform.position;
             if (Vector2.Distance(myPosition, targetPosition) > AttackRange)
             {

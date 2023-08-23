@@ -20,14 +20,14 @@ namespace AK.Scripts.Services
             var keyboard = Keyboard.current;
             if (keyboard.f2Key.wasPressedThisFrame) 
                 _playerSquad.SelectAll();
-            if (keyboard.oem1Key.wasPressedThisFrame) 
+            if (keyboard.digit1Key.wasPressedThisFrame) 
+                _playerSquad.Select(0);
+            if (keyboard.digit2Key.wasPressedThisFrame) 
                 _playerSquad.Select(1);
-            if (keyboard.oem2Key.wasPressedThisFrame) 
+            if (keyboard.digit3Key.wasPressedThisFrame) 
                 _playerSquad.Select(2);
-            if (keyboard.oem3Key.wasPressedThisFrame) 
+            if (keyboard.digit4Key.wasPressedThisFrame) 
                 _playerSquad.Select(3);
-            if (keyboard.oem4Key.wasPressedThisFrame) 
-                _playerSquad.Select(4);
             
         }
 

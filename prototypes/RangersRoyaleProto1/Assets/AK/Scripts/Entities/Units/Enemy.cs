@@ -14,6 +14,9 @@ namespace AK.Scripts.Entities.Units
 
         public static readonly List<Enemy> Enemies = new();
 
+        protected override Damage Damage => new(5);
+        protected override float MaxHp => 25;
+        
         protected override void OnAwake()
         {
             Enemies.Add(this);
@@ -22,9 +25,11 @@ namespace AK.Scripts.Entities.Units
 
         protected override void OnItemFound(Item item)
         {
+            if (!item.isArtifact)
+                return;
+
             item.transform.SetParent(transform);
             item.Owner = this;
-            // item.gameObject.SetActive(false);
         }
 
         protected override void OnDeath()

@@ -44,17 +44,17 @@ namespace AK.Scripts.Entities
 
         public void CommandMove(Vector2 position)
         {
-            Vector2? firstHeroPosition = default;
+            // Vector2? firstHeroPosition = default;
             foreach (var hero in _selectedHeroes)
             {
                 var targetPosition = position;
-                if (firstHeroPosition != null)
-                {
-                    var delta = (Vector2) hero.transform.position - firstHeroPosition.Value;
-                    targetPosition += delta;
-                }
-                else
-                    firstHeroPosition = hero.transform.position;
+                // if (firstHeroPosition != null)
+                // {
+                //     var delta = (Vector2) hero.transform.position - firstHeroPosition.Value;
+                //     targetPosition += delta;
+                // }
+                // else
+                //     firstHeroPosition = hero.transform.position;
 
                 hero.CommandMove(targetPosition);
             }

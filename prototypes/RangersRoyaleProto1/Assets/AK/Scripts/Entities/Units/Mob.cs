@@ -17,8 +17,8 @@ namespace AK.Scripts.Entities.Units
         protected override float Speed => 4f;
         protected override float AttackRange => 1.5f;
         protected override float AttackCooldown => 1f;
-        protected override Damage Damage => new(1);
-        protected override float MaxHp => 10;
+        protected override Damage Damage => new(3);
+        protected override float MaxHp => 20;
 
         public override void OnPointerClick(PointerEventData eventData)
         {
@@ -84,15 +84,18 @@ namespace AK.Scripts.Entities.Units
                 SetCommand(new(bestTarget));
         }
 
+        private float _randomWalkReset;
         protected void AiRandomWalk(Vector2 myPosition)
         {
             const float randomRange = 5f;
-            if (CurrentCommand is null)
+            _randomWalkReset -= Time.deltaTime;
+            if (CurrentCommand is null || (CurrentCommand.Value.IsPosition(out _) && _randomWalkReset <= 0))
             {
                 var target = myPosition;
                 target.x += Random.Range(-randomRange, randomRange);
                 target.y += Random.Range(-randomRange, randomRange);
                 SetCommand(new(target));
+                _randomWalkReset = 5f;
             }
         }
     }
