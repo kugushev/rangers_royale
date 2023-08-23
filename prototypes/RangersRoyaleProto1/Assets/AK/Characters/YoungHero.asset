@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1436996484437ba088e125e09f1ff0, type: 3}
+  m_Name: YoungHero
+  m_EditorClassIdentifier: 
+  _bodyColor: {r: 1, g: 1, b: 1, a: 1}
+  _customizations:
+  - _customizationData: {fileID: 11400000, guid: dc5627378d1c82a49bf2d8644012a350, type: 2}
+    _mainColor: {r: 1, g: 1, b: 1, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 8358d7def38c1d943aa2b3b475609c5c, type: 2}
+    _mainColor: {r: 1, g: 1, b: 1, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 08d565e1bc928cc4ca2d0ddaa4b29d5c, type: 2}
+    _mainColor: {r: 0.45873073, g: 0.8301887, b: 0.3798505, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 5f8adae0ebba9ce42b84324de1cb3002, type: 2}
+    _mainColor: {r: 0.5248741, g: 0.39191777, b: 0.3106667, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 9cd57bd02840c0c4896e32ed6be27b74, type: 2}
+    _mainColor: {r: 1, g: 0.5935263, b: 0.40006936, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 7095e20c33bbf88448cbd78d49998566, type: 2}
+    _mainColor: {r: 1, g: 1, b: 1, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: cd71c7278dcd34c4a87607cb4daae782, type: 2}
+    _mainColor: {r: 0.77697873, g: 0.28103757, b: 0.627755, a: 1}
+    _detailSpritesIndex: 1
+    _detailColor: {r: 1, g: 0.36378223, b: 0.36378223, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 12cb3809c51758347b5b08f7c8d472b7, type: 2}
+    _mainColor: {r: 1, g: 0.7770478, b: 0.58640754, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 179e0dcff0edd6340a2852f774df51d6, type: 2}
+    _mainColor: {r: 0.65882355, g: 0.43137252, b: 0.23921569, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 047ef1218a2019f498dcffb50282b128, type: 2}
+    _mainColor: {r: 0.40392157, g: 0.32156864, b: 0.25490198, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: b6f209527d4aeb545b5b119f3af7f120, type: 2}
+    _mainColor: {r: 0.65882355, g: 0.43137252, b: 0.23921569, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: e1a2a9ccfdc20fc44a6b976e2a7bb2c6, type: 2}
+    _mainColor: {r: 1, g: 1, b: 1, a: 1}
+    _detailSpritesIndex: 0
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  - _customizationData: {fileID: 11400000, guid: 3e851026061cde644b82c025f8fcd57c, type: 2}
+    _mainColor: {r: 0.8784314, g: 0.60784316, b: 0.3764706, a: 1}
+    _detailSpritesIndex: 1
+    _detailColor: {r: 1, g: 1, b: 1, a: 1}
+    _isHidden: 0
+  _scaleGroups:
+  - _groupName: Body
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Head
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Arms
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Hands
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Legs
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Feet
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Weapon
+    _scale: 1
+    _width: 1
+    _length: 1
+  - _groupName: Shield
+    _scale: 1
+    _width: 1
+    _length: 1

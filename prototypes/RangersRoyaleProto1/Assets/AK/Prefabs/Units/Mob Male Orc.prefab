@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &836761592518538291
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2501650014983727904, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_Name
+      value: Mob Male Orc
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2023872149816717362}
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+--- !u!4 &6252220580238262445 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6726301148719674526, guid: fe743512e61644044b5e2273f3cb347c, type: 3}
+  m_PrefabInstance: {fileID: 836761592518538291}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6696605271416021391
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6252220580238262445}
+    m_Modifications:
+    - target: {fileID: 826813735029538774, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_Name
+      value: Male Orc
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+--- !u!4 &2023872149816717362 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4681812856950428093, guid: 2ac8761d229317045a18685016e7c10e, type: 3}
+  m_PrefabInstance: {fileID: 6696605271416021391}
+  m_PrefabAsset: {fileID: 0}
