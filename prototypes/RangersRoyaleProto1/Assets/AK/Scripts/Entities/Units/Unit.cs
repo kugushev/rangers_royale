@@ -4,6 +4,7 @@ using AK.Scripts.ValueObjects;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace AK.Scripts.Entities.Units
 {
@@ -60,7 +61,7 @@ namespace AK.Scripts.Entities.Units
         {
         }
 
-        public float CurrentHp { get; private set; }
+        public virtual float CurrentHp { get; protected set; }
         public Command? CurrentCommand => _currentCommand;
         public bool Dead { get; private set; }
 
@@ -70,9 +71,135 @@ namespace AK.Scripts.Entities.Units
 
         protected abstract float AttackCooldown { get; }
 
-        protected abstract Damage Damage { get; }
+        protected abstract Offence Offence { get; }
 
         protected abstract float MaxHp { get; }
+
+        protected abstract float Evasion { get; }
+
+        protected abstract bool CanParry { get; }
+        protected abstract float Parry { get; }
+
+        protected abstract bool HasShield { get; }
+        protected abstract float ShieldArmor { get; }
+        protected abstract float ShieldCoverage { get; }
+
+        protected abstract float HardArmor { get; }
+        protected abstract float HardArmorCoverage { get; }
+        protected abstract float SoftArmor { get; }
+        protected abstract float SoftArmorCoverage { get; }
+
+
+        protected virtual void HandleAttacked(Offence offence, Unit source)
+        {
+            if (Dead)
+                _animationController.AnimateDeath();
+
+            var damage = offence.Damage;
+
+            var attackerPosition = GetAttackerPosition();
+
+            if (attackerPosition is RelativePosition.LeftHand or RelativePosition.RightHand)
+            {
+                print("Check evade");
+
+                if (!HitCheck(Evasion))
+                    return;
+            }
+
+
+            if (CanParry && !offence.Unpaired)
+                if (attackerPosition == RelativePosition.RightHand ||
+                    (!HasShield && attackerPosition == RelativePosition.LeftHand))
+                {
+                    print("Parry Check");
+
+                    if (!HitCheck(Parry))
+                    {
+                        var parryOffence = new Offence(0f, Offence.Accuracy, Offence.StunTime, true);
+                        source.HandleAttacked(parryOffence, this);
+                        return;
+                    }
+                }
+
+            if (HasShield && attackerPosition == RelativePosition.LeftHand)
+            {
+                print("Check shield");
+
+                var hit = !HitCheck(ShieldCoverage);
+                if (hit)
+                {
+                    damage = Mathf.Max(damage - ShieldArmor, 0f);
+                    print($"Shield damage reduction to {damage}");
+                }
+            }
+
+            if (!HitCheck(HardArmorCoverage))
+            {
+                damage = Mathf.Max(damage - HardArmor, 0f);
+                print($"Hard armor damage reduction to {damage}");
+            }
+
+            if (!HitCheck(SoftArmorCoverage))
+            {
+                damage -= damage * SoftArmor;
+                print($"Soft armor damage reduction to {damage}");
+            }
+
+            print($"Do Damage {CurrentHp} - {damage}");
+            SetHp(CurrentHp - damage);
+
+            if (CurrentHp <= 0)
+            {
+                _animationController.AnimateDeath();
+                Death();
+            }
+            else
+            {
+                _timeSinceLastAttack = Mathf.Max(_timeSinceLastAttack, offence.StunTime);
+                _animationController.AnimateStun();
+            }
+
+
+            RelativePosition GetAttackerPosition()
+            {
+                var (direction, direction270) = _animationController.CurrentDirection switch
+                {
+                    CharacterAnimationController.AnimationDirection.Up => (Vector2.up, Vector2.right),
+                    CharacterAnimationController.AnimationDirection.Down => (Vector2.down, Vector2.left),
+                    CharacterAnimationController.AnimationDirection.Left => (Vector2.left, Vector2.up),
+                    CharacterAnimationController.AnimationDirection.Right => (Vector2.right, Vector2.down),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                Vector2 toSource = (source.transform.position - transform.position).normalized;
+
+                var cos = Vector2.Dot(direction, toSource);
+                var cos270 = Vector2.Dot(direction270, toSource);
+
+                return (cos, cos270) switch
+                {
+                    (>= 0, >= 0) => RelativePosition.RightHand,
+                    (>= 0, < 0) => RelativePosition.LeftHand,
+                    _ => RelativePosition.Back
+                };
+            }
+
+            bool HitCheck(float defenceParameter)
+            {
+                var roll = Random.Range(0f, 1f + offence.Accuracy);
+                var hit = roll > defenceParameter;
+                print($"Hit Check: {hit} = {roll} (0-{1f + offence.Accuracy}) > {defenceParameter}");
+                return hit;
+            }
+        }
+
+        private enum RelativePosition
+        {
+            LeftHand,
+            RightHand,
+            Back
+        }
 
         public abstract void OnPointerClick(PointerEventData eventData);
 
@@ -130,7 +257,7 @@ namespace AK.Scripts.Entities.Units
                 _currentCommand = null;
                 return false;
             }
-            
+
             var targetPosition = target.transform.position;
             if (Vector2.Distance(myPosition, targetPosition) > AttackRange)
             {
@@ -146,29 +273,10 @@ namespace AK.Scripts.Entities.Units
                 _animationController.AnimateAttack(myPosition, targetPosition);
                 _timeSinceLastAttack = AttackCooldown;
 
-                target.ApplyDamage(Damage, this);
+                target.HandleAttacked(Offence, this);
             }
 
             return true;
-        }
-
-        protected virtual void ApplyDamage(Damage damage, Unit source)
-        {
-            if (Dead)
-                _animationController.AnimateDeath();
-
-            SetHp(CurrentHp - damage.Amount);
-
-            if (CurrentHp <= 0)
-            {
-                _animationController.AnimateDeath();
-                Death();
-            }
-            else
-            {
-                _timeSinceLastAttack = Mathf.Max(_timeSinceLastAttack, damage.StunTime);
-                _animationController.AnimateStun();
-            }
         }
 
 

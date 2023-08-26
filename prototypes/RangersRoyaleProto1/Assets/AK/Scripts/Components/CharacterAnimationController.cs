@@ -25,6 +25,8 @@ namespace AK.Scripts.Components
 
         private Vector2 _previousPosition;
 
+        public AnimationDirection CurrentDirection { get; private set; } = AnimationDirection.Down;
+
         private void Awake()
         {
             ResetRigs();
@@ -83,15 +85,15 @@ namespace AK.Scripts.Components
         {
             ResetRigs();
 
-            var direction = GetDirection(delta);
+            CurrentDirection = GetDirection(delta);
 
-            var (dirInt, rig, scaleXMul) = direction switch
+            var (dirInt, rig, scaleXMul) = CurrentDirection switch
             {
                 AnimationDirection.Up => (0, customizableCharacter.UpRig, 0),
                 AnimationDirection.Down => (2, customizableCharacter.DownRig, 0),
                 AnimationDirection.Left => (1, customizableCharacter.SideRig, -1),
                 AnimationDirection.Right => (1, customizableCharacter.SideRig, 1),
-                _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(CurrentDirection), CurrentDirection, null)
             };
 
             rig.SetActive(true);
@@ -114,7 +116,7 @@ namespace AK.Scripts.Components
             customizableCharacter.DownRig.SetActive(false);
         }
 
-        private enum AnimationDirection
+        public enum AnimationDirection
         {
             Up,
             Down,

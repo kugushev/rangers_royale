@@ -14,8 +14,18 @@ namespace AK.Scripts.Entities.Units
 
         public static readonly List<Enemy> Enemies = new();
 
-        protected override Damage Damage => new(5);
+        protected override Offence Offence => new(2, 0.0f, 0.2f);
         protected override float MaxHp => 25;
+        protected override float Evasion => 0.0f;
+        protected override bool CanParry => false;
+        protected override float Parry => 0f;
+        protected override bool HasShield => true;
+        protected override float ShieldArmor => 5;
+        protected override float ShieldCoverage => 0.5f;
+        protected override float HardArmor => 3f;
+        protected override float HardArmorCoverage => 0.8f;
+        protected override float SoftArmor => 0f;
+        protected override float SoftArmorCoverage => 0f;
         
         protected override void OnAwake()
         {

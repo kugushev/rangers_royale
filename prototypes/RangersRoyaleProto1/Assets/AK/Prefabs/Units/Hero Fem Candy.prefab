@@ -48,6 +48,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5507964650027258012, guid: 708640d7d30cb044fbf15c2c5a8bb7b1, type: 3}
+      propertyPath: hasShield
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5507964650027258012, guid: 708640d7d30cb044fbf15c2c5a8bb7b1, type: 3}
+      propertyPath: hardArmorCoverage
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5507964650027258012, guid: 708640d7d30cb044fbf15c2c5a8bb7b1, type: 3}
+      propertyPath: softArmorCoverage
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 7205378895828783007, guid: 708640d7d30cb044fbf15c2c5a8bb7b1, type: 3}
       propertyPath: m_Name
       value: Hero Fem Candy

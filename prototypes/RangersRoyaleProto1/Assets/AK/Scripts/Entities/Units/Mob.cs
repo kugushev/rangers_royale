@@ -17,8 +17,18 @@ namespace AK.Scripts.Entities.Units
         protected override float Speed => 4f;
         protected override float AttackRange => 1.5f;
         protected override float AttackCooldown => 1f;
-        protected override Damage Damage => new(3);
-        protected override float MaxHp => 20;
+        protected override Offence Offence => new(4, 0f, 0.2f);
+        protected override float MaxHp => 30;
+        protected override float Evasion => 0.2f;
+        protected override bool CanParry => true;
+        protected override float Parry => 0.2f;
+        protected override bool HasShield => false;
+        protected override float ShieldArmor => 0;
+        protected override float ShieldCoverage => 0f;
+        protected override float HardArmor => 3f;
+        protected override float HardArmorCoverage => 0.1f;
+        protected override float SoftArmor => 0f;
+        protected override float SoftArmorCoverage => 0f;
 
         public override void OnPointerClick(PointerEventData eventData)
         {
@@ -36,9 +46,9 @@ namespace AK.Scripts.Entities.Units
             selected.SetActive(false);
         }
 
-        protected override void ApplyDamage(Damage damage, Unit source)
+        protected override void HandleAttacked(Offence offence, Unit source)
         {
-            base.ApplyDamage(damage, source);
+            base.HandleAttacked(offence, source);
             if (CurrentCommand is null || CurrentCommand.Value.IsPosition(out _))
                 SetCommand(new(source));
         }

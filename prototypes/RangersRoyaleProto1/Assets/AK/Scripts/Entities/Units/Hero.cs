@@ -10,9 +10,14 @@ namespace AK.Scripts.Entities.Units
     public class Hero : Unit
     {
         [SerializeField] private GameObject selectedMark;
+        [SerializeField] private bool hasShield;
+        [SerializeField] private float hardArmorCoverage = 0.2f;
+        [SerializeField] private float softArmorCoverage = 0.2f;
+        
         [Inject] private readonly PlayerSquad _squad;
         [Inject] private readonly Bonfire _bonfire;
         [Inject] private readonly World _world;
+        
 
         private float _maxHp = 5f;
         private float _damage = 1f;
@@ -31,8 +36,18 @@ namespace AK.Scripts.Entities.Units
         protected override float Speed => 5f;
         protected override float AttackRange => 2f;
         protected override float AttackCooldown => 1f;
-        protected override Damage Damage => new(_damage);
+        protected override Offence Offence => new(_damage, 0.5f, 0.2f);
         protected override float MaxHp => _maxHp;
+        protected override float Evasion => 0.4f;
+        protected override bool CanParry => true;
+        protected override float Parry => 0.4f;
+        protected override bool HasShield => hasShield;
+        protected override float ShieldArmor => 2;
+        protected override float ShieldCoverage => 0.5f;
+        protected override float HardArmor => 1f;
+        protected override float HardArmorCoverage => hardArmorCoverage;
+        protected override float SoftArmor => 0.3f;
+        protected override float SoftArmorCoverage => softArmorCoverage;
 
         public override void OnPointerClick(PointerEventData eventData)
         {
