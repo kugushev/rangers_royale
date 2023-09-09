@@ -36,8 +36,11 @@ namespace AK.Scripts.Components
         public void AnimateAttack(Vector3 myPosition, Vector3 targetPosition)
         {
             HandleDirection(targetPosition - myPosition);
+            AnimateAttack();
+        }
 
-
+        public void AnimateAttack()
+        {
             var currentAttack = Random.Range(0, AttackTriggers.Count);
             animator.SetTrigger(AttackTriggers[currentAttack]);
         }
@@ -53,7 +56,8 @@ namespace AK.Scripts.Components
         public void MovementHandle(Vector2 currentPosition)
         {
             var delta = currentPosition - _previousPosition;
-            HandleDirection(delta);
+            if (delta.magnitude >= Single.Epsilon)
+                HandleDirection(delta);
 
             var speed = delta.magnitude / Time.deltaTime / 2f;
             animator.SetFloat(AnimSpeed, speed);

@@ -16,6 +16,16 @@ namespace AK.Scripts.Entities
             _camera = Camera.main;
         }
 
+        public Hero CurrentHero
+        {
+            get
+            {
+                if (_selectedHeroes.Count == 0)
+                    return null;
+                return _selectedHeroes[0];
+            }
+        }
+
         void ITickable.Tick()
         {
             if (_selectedHeroes.Count == 0)

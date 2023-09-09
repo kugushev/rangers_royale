@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/AK/Scenes/Playground.unity
-    guid: a53594caf0c021143b16bd0ae4a82ab5
+    path: Assets/AK/Scenes/Zeldoid.unity
+    guid: 7fd3edc983fbe894a9f87075d7769931
   m_configObjects: {}

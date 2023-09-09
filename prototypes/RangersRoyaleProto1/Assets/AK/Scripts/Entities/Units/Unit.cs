@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using AK.Scripts.Components;
+using AK.Scripts.Services;
 using AK.Scripts.ValueObjects;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace AK.Scripts.Entities.Units
@@ -12,37 +16,120 @@ namespace AK.Scripts.Entities.Units
     [RequireComponent(typeof(Collider2D))]
     public abstract class Unit : MonoBehaviour, IPointerClickHandler
     {
+        [Inject] protected readonly PauseService PauseService;
+
+        private readonly List<UnitState> _story = new();
+
         private Command? _currentCommand;
-        private NavMeshAgent _agent;
+        protected NavMeshAgent Agent;
         private Vector2? _currentDestination;
-        private CharacterAnimationController _animationController;
+        protected CharacterAnimationController AnimationController;
         private float _timeSinceLastAttack;
         protected SimpleHealthBar SimpleHealthBar;
         private Collider2D _collider;
+        private float _stunCounter;
 
         protected void Awake()
         {
-            _agent = GetComponent<NavMeshAgent>();
-            _agent.speed = Speed;
+            Agent = GetComponent<NavMeshAgent>();
+            Agent.speed = Speed;
 
-            _animationController = GetComponentInChildren<CharacterAnimationController>();
+            AnimationController = GetComponentInChildren<CharacterAnimationController>();
 
             SimpleHealthBar = GetComponentInChildren<SimpleHealthBar>();
             SetHp(MaxHp);
 
             _collider = GetComponent<Collider2D>();
 
+
+            PauseService.PausedChanged += PauseChanged;
             OnAwake();
         }
+
+        // private void OnDestroy()
+        // {
+        //     PauseService.PausedChanged -= PauseChanged;
+        // }
 
         protected virtual void OnAwake()
         {
         }
 
+        private void PauseChanged()
+        {
+            Agent.enabled = !PauseService.Paused;
+            if (!PauseService.Paused && _currentCommand != null && _currentCommand.Value.IsPosition(out var position))
+                SetDestinationToAgent(position);
+        }
+
         protected void Update()
         {
+            if (PauseService.Paused)
+                return;
+
             ProcessCommands();
             DoUpdate();
+
+            _story.Add(new UnitState
+            {
+                Dead = Dead,
+                Damage = Offence.Damage,
+                Hp = CurrentHp,
+                MaxHp = MaxHp,
+                Position = transform.position,
+                Tick = PauseService.Ticks
+            });
+        }
+
+        public void RestoreState(int ticks, out bool notBorn)
+        {
+            if (_story.Count == 0 || _story[0].Tick > ticks)
+            {
+                notBorn = true;
+                return;
+            }
+
+            var delta = ticks - _story[0].Tick;
+            if (_story.Count < delta)
+            {
+                Debug.LogError($"Shit, too much ticks: {_story.Count} < {delta}");
+                delta = _story.Count - 1;
+            }
+
+            if (delta < 0) 
+                delta = 0;
+
+            notBorn = false;
+            var state = _story[delta];
+            Dead = state.Dead;
+            CurrentHp = state.Hp;
+            transform.position = state.Position;
+            OnRestore(state);
+        }
+
+        protected virtual void OnRestore(UnitState state)
+        {
+        }
+
+        public void TrimStory(int ticks, out bool notBorn)
+        {
+            if (_story.Count == 0 || _story[0].Tick > ticks)
+            {
+                notBorn = true;
+                _story.Clear();
+
+                return;
+            }
+
+            var delta = ticks - _story[0].Tick;
+            if (_story.Count < delta)
+            {
+                Debug.LogError($"Shit, too much ticks: {_story.Count} < {delta}");
+                delta = _story.Count - 1;
+            }
+
+            _story.RemoveRange(delta, _story.Count - delta);
+            notBorn = false;
         }
 
         protected virtual void DoUpdate()
@@ -90,10 +177,10 @@ namespace AK.Scripts.Entities.Units
         protected abstract float SoftArmorCoverage { get; }
 
 
-        protected virtual void HandleAttacked(Offence offence, Unit source)
+        protected internal virtual void HandleAttacked(Offence offence, Unit source)
         {
             if (Dead)
-                _animationController.AnimateDeath();
+                AnimationController.AnimateDeath();
 
             var damage = offence.Damage;
 
@@ -101,7 +188,7 @@ namespace AK.Scripts.Entities.Units
 
             if (attackerPosition is RelativePosition.LeftHand or RelativePosition.RightHand)
             {
-                print("Check evade");
+                // print("Check evade");
 
                 if (!HitCheck(Evasion))
                     return;
@@ -112,7 +199,7 @@ namespace AK.Scripts.Entities.Units
                 if (attackerPosition == RelativePosition.RightHand ||
                     (!HasShield && attackerPosition == RelativePosition.LeftHand))
                 {
-                    print("Parry Check");
+                    // print("Parry Check");
 
                     if (!HitCheck(Parry))
                     {
@@ -124,46 +211,46 @@ namespace AK.Scripts.Entities.Units
 
             if (HasShield && attackerPosition == RelativePosition.LeftHand)
             {
-                print("Check shield");
+                // print("Check shield");
 
                 var hit = !HitCheck(ShieldCoverage);
                 if (hit)
                 {
                     damage = Mathf.Max(damage - ShieldArmor, 0f);
-                    print($"Shield damage reduction to {damage}");
+                    // print($"Shield damage reduction to {damage}");
                 }
             }
 
             if (!HitCheck(HardArmorCoverage))
             {
                 damage = Mathf.Max(damage - HardArmor, 0f);
-                print($"Hard armor damage reduction to {damage}");
+                // print($"Hard armor damage reduction to {damage}");
             }
 
             if (!HitCheck(SoftArmorCoverage))
             {
                 damage -= damage * SoftArmor;
-                print($"Soft armor damage reduction to {damage}");
+                // print($"Soft armor damage reduction to {damage}");
             }
 
-            print($"Do Damage {CurrentHp} - {damage}");
+            // print($"Do Damage {CurrentHp} - {damage}");
             SetHp(CurrentHp - damage);
 
             if (CurrentHp <= 0)
             {
-                _animationController.AnimateDeath();
+                AnimationController.AnimateDeath();
                 Death();
             }
             else
             {
-                _timeSinceLastAttack = Mathf.Max(_timeSinceLastAttack, offence.StunTime);
-                _animationController.AnimateStun();
+                _stunCounter = offence.StunTime;
+                AnimationController.AnimateStun();
             }
 
 
             RelativePosition GetAttackerPosition()
             {
-                var (direction, direction270) = _animationController.CurrentDirection switch
+                var (direction, direction270) = AnimationController.CurrentDirection switch
                 {
                     CharacterAnimationController.AnimationDirection.Up => (Vector2.up, Vector2.right),
                     CharacterAnimationController.AnimationDirection.Down => (Vector2.down, Vector2.left),
@@ -189,7 +276,7 @@ namespace AK.Scripts.Entities.Units
             {
                 var roll = Random.Range(0f, 1f + offence.Accuracy);
                 var hit = roll > defenceParameter;
-                print($"Hit Check: {hit} = {roll} (0-{1f + offence.Accuracy}) > {defenceParameter}");
+                // print($"Hit Check: {hit} = {roll} (0-{1f + offence.Accuracy}) > {defenceParameter}");
                 return hit;
             }
         }
@@ -205,6 +292,10 @@ namespace AK.Scripts.Entities.Units
 
         private void ProcessCommands()
         {
+            _stunCounter -= Time.deltaTime;
+            if (_stunCounter > 0)
+                return;
+
             _timeSinceLastAttack -= Time.deltaTime;
 
             if (Dead)
@@ -216,21 +307,28 @@ namespace AK.Scripts.Entities.Units
             {
                 if (_currentCommand.Value.IsUnit(out var target))
                 {
-                    var attacking = HandleAttackCommand(target, myPosition);
-                    if (attacking)
-                        return;
+                    if (target.IsDestroyed())
+                    {
+                        _currentCommand = null;
+                    }
+                    else
+                    {
+                        var attacking = HandleAttackCommand(target, myPosition);
+                        if (attacking)
+                            return;
+                    }
                 }
                 else if (_currentCommand.Value.IsPosition(out var position))
                 {
-                    if (Vector2.Distance(myPosition, position) < _agent.speed * Time.deltaTime)
+                    if (Vector2.Distance(myPosition, position) < Agent.speed * Time.deltaTime)
                         SetCommand(null);
                 }
             }
 
-            _animationController.MovementHandle(myPosition);
+            AnimationController.MovementHandle(myPosition);
         }
 
-        protected void SetCommand(Command? command)
+        protected virtual void SetCommand(Command? command)
         {
             if (Dead)
                 return;
@@ -246,8 +344,16 @@ namespace AK.Scripts.Entities.Units
                 return;
 
             _currentDestination = position;
-            _agent.isStopped = false;
-            _agent.SetDestination(position);
+            if (!Agent.enabled)
+                return;
+
+            SetDestinationToAgent(position);
+        }
+
+        private void SetDestinationToAgent(Vector2 position)
+        {
+            Agent.isStopped = false;
+            Agent.SetDestination(position);
         }
 
         private bool HandleAttackCommand(Unit target, Vector3 myPosition)
@@ -265,34 +371,39 @@ namespace AK.Scripts.Entities.Units
                 return false;
             }
 
-            _agent.isStopped = true;
-            _animationController.MovementStop();
+            Agent.isStopped = true;
+            AnimationController.MovementStop();
 
             if (_timeSinceLastAttack <= 0)
             {
-                _animationController.AnimateAttack(myPosition, targetPosition);
+                AnimationController.AnimateAttack(myPosition, targetPosition);
                 _timeSinceLastAttack = AttackCooldown;
 
                 target.HandleAttacked(Offence, this);
+                OnTargetAttacked(target);
             }
 
             return true;
+        }
+
+        protected virtual void OnTargetAttacked(Unit target)
+        {
         }
 
 
         protected void Resurrect()
         {
             Dead = false;
-            _agent.isStopped = false;
+            Agent.isStopped = false;
             _collider.enabled = true;
-            _animationController.AnimateResurrect();
+            AnimationController.AnimateResurrect();
             SetHp(1);
         }
 
         private void Death()
         {
             Dead = true;
-            _agent.isStopped = true;
+            Agent.isStopped = true;
             _collider.enabled = false;
             OnDeath();
         }

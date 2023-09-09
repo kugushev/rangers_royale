@@ -1,18 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AK.Scripts.ValueObjects;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace AK.Scripts.Entities.Units
 {
     public class Mob : Unit
     {
         [SerializeField] private GameObject selected;
+        [SerializeField] private float aggroRadius = 5f;
         [Inject] protected readonly PlayerSquad HeroesSquad;
         private readonly WaitForSeconds _wait = new(0.15f);
+
+        public static List<Mob> AllMobs = new();
 
         protected override float Speed => 4f;
         protected override float AttackRange => 1.5f;
@@ -30,6 +35,12 @@ namespace AK.Scripts.Entities.Units
         protected override float SoftArmor => 0f;
         protected override float SoftArmorCoverage => 0f;
 
+        protected override void OnAwake()
+        {
+            AllMobs.Add(this);
+            base.OnAwake();
+        }
+
         public override void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Right)
@@ -46,7 +57,7 @@ namespace AK.Scripts.Entities.Units
             selected.SetActive(false);
         }
 
-        protected override void HandleAttacked(Offence offence, Unit source)
+        protected internal override void HandleAttacked(Offence offence, Unit source)
         {
             base.HandleAttacked(offence, source);
             if (CurrentCommand is null || CurrentCommand.Value.IsPosition(out _))
@@ -71,7 +82,6 @@ namespace AK.Scripts.Entities.Units
                     return;
             }
 
-            const float aggroRadius = 5f;
             Unit bestTarget = null;
             float bestDistance = float.MaxValue;
             foreach (var hero in HeroesSquad.AllHeroes.Concat<Unit>(Enemy.Enemies))
@@ -107,6 +117,13 @@ namespace AK.Scripts.Entities.Units
                 SetCommand(new(target));
                 _randomWalkReset = 5f;
             }
+        }
+
+        protected override void OnDeath()
+        {
+            
+            // AllMobs.Remove(this);
+            base.OnDeath();
         }
     }
 }
