@@ -1,6 +1,7 @@
-use bevy::prelude::*;
+use bevy::prelude::{App, Resource};
+use crate::ecs::scenes::GameScene;
 
-pub(crate) fn build_resources(app: &mut App) {
+pub(super) fn build_world(app: &mut App, scene: GameScene){
     app.insert_resource(WorldMap::default());
 }
 

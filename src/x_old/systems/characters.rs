@@ -3,12 +3,12 @@ pub mod animations;
 use std::ops::{Deref, DerefMut};
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
-use crate::ecs::components::characters::{Character, CharacterOrder, CharacterOrdersHandle};
-use crate::ecs::components::deck::{Card, Deck, HandSlot, SkillsHand};
-use crate::ecs::components::deck::HandSlot::Obtained;
-use crate::ecs::components::projectiles::MagicMissile;
-use crate::ecs::components::ui::SkillKey;
-use crate::ecs::systems::characters::animations::build_characters_animations;
+use crate::x_old::components::characters::{Character, CharacterOrder, CharacterOrdersHandle};
+use crate::x_old::components::deck::{Card, Deck, HandSlot, SkillsHand};
+use crate::x_old::components::deck::HandSlot::Obtained;
+use crate::x_old::components::projectiles::MagicMissile;
+use crate::x_old::components::ui::SkillKey;
+use crate::x_old::systems::characters::animations::build_characters_animations;
 
 pub(crate) fn build_characters_systems(app: &mut App) {
     app.add_system(handle_orders)

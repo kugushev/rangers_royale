@@ -1,3 +1,9 @@
+use once_cell::sync::Lazy;
+
+pub const CHARACTER_ANIMATIONS_FPS: usize = 60;
+
+pub static YOUNG_HERO: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("young_hero"));
+
 pub struct CharacterAnimationsPaths {
     pub idle_up: String,
     pub idle_down: String,
@@ -11,11 +17,6 @@ pub struct CharacterAnimationsPaths {
     pub die_up: String,
     pub die_down: String,
     pub die_side: String,
-}
-
-
-impl CharacterAnimationsPaths {
-    pub fn young_hero() -> Self { create("young_hero") }
 }
 
 fn create(folder: &str) -> CharacterAnimationsPaths {

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use crate::ecs::components::deck::{SkillsHand, Deck, HandSlot};
-use crate::ecs::components::Player;
-use crate::ecs::components::ui::{SkillBlock, SkillDeck, SkillKey, SkillsRowBlock};
+use crate::x_old::components::deck::{SkillsHand, Deck, HandSlot};
+use crate::x_old::components::Player;
+use crate::x_old::components::ui::{SkillBlock, SkillDeck, SkillKey, SkillsRowBlock};
 
 pub(crate) fn build_ui_systems(app: &mut App) {
     app.add_startup_system(setup_ui)

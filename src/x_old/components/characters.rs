@@ -2,8 +2,8 @@ pub(crate) mod animations;
 
 use bevy::math::{Vec2, Vec3};
 use bevy::prelude::{Bundle, Component, SpriteBundle, Transform};
-use crate::ecs::components::ui::SkillKey;
-use crate::ecs::resources::WorldMap;
+use crate::x_old::components::ui::SkillKey;
+use crate::ecs::battle::world::WorldMap;
 
 #[derive(Bundle)]
 pub(crate) struct Character {

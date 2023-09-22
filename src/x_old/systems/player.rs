@@ -1,15 +1,15 @@
 use std::ops::Deref;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::ecs::components::Player;
-use crate::ecs::components::characters::{Character, CharacterOrdersHandle};
-use crate::ecs::components::characters::animations::CharacterAnimationHandles;
-use crate::ecs::components::deck::{Deck, SkillsHand};
-use crate::ecs::components::deck::Card::MagicMissile;
-use crate::ecs::components::input::CursorPosition;
-use crate::ecs::components::ui::SkillKey;
-use crate::ecs::resources::WorldMap;
-use crate::ecs::systems::spritesheet_animations::{AnimationIndices, AnimationTimer};
+use crate::x_old::components::Player;
+use crate::x_old::components::characters::{Character, CharacterOrdersHandle};
+use crate::x_old::components::characters::animations::CharacterAnimationHandles;
+use crate::x_old::components::deck::{Deck, SkillsHand};
+use crate::x_old::components::deck::Card::MagicMissile;
+use crate::x_old::components::input::CursorPosition;
+use crate::x_old::components::ui::SkillKey;
+use crate::ecs::battle::world::WorldMap;
+use crate::x_old::systems::spritesheet_animations::{AnimationIndices, AnimationTimer};
 use crate::registry::character_animations_paths::CharacterAnimationsPaths;
 
 pub(crate) fn build_player_systems(app: &mut App) {

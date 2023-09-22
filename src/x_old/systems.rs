@@ -6,12 +6,12 @@ mod spritesheet_animations;
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
-use crate::ecs::resources::WorldMap;
-use crate::ecs::systems::characters::build_characters_systems;
-use crate::ecs::systems::player::build_player_systems;
-use crate::ecs::systems::projectiles::build_projectiles_systems;
-use crate::ecs::systems::spritesheet_animations::build_spritesheet_animations_systems;
-use crate::ecs::systems::ui::build_ui_systems;
+use crate::ecs::battle::world::WorldMap;
+use crate::x_old::systems::characters::build_characters_systems;
+use crate::x_old::systems::player::build_player_systems;
+use crate::x_old::systems::projectiles::build_projectiles_systems;
+use crate::x_old::systems::spritesheet_animations::build_spritesheet_animations_systems;
+use crate::x_old::systems::ui::build_ui_systems;
 
 pub(crate) fn build_systems(app: &mut App) {
     app.add_startup_system(setup)

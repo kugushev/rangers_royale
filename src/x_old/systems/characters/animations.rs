@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::ecs::components::characters::animations::CharacterAnimationHandles;
+use crate::x_old::components::characters::animations::CharacterAnimationHandles;
 
 pub(crate) fn build_characters_animations(app: &mut App) {
     app.add_system(switch_animations);
