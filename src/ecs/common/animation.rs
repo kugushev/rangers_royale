@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use crate::utils::Vec2toVec3;
 
-pub(super) fn build_spritesheet_animations_systems(app: &mut App) {
+pub(super) fn build_animation(app: &mut App) {
     app.add_systems(Update, animate_sprite);
 }
 

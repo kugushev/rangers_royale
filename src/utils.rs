@@ -12,7 +12,7 @@ impl Vec2toVec3 for Vec2 {
     }
 }
 
-trait Vec3toVec2 {
+pub trait Vec3toVec2 {
     fn to_vec2(self) -> Vec2;
 }
 

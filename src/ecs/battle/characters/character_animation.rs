@@ -1,18 +1,20 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
-use crate::ecs::common::spritesheet_animations::AnimationBundle;
+use crate::ecs::battle::characters::Character;
+use crate::ecs::battle::characters::position_tracking::{CharacterDirection, PositionTracker};
+use crate::ecs::common::animation::AnimationBundle;
 use crate::ecs::scenes::GameScene;
 use crate::registry::character_animations_paths::{CHARACTER_ANIMATIONS_FPS, CharacterAnimationsPaths};
 
-pub(super) fn build_player_characters(app: &mut App, scene: GameScene) {
-    // todo: add system change_animation_handle and component character_animation_controller
+pub(super) fn build_character_animation(app: &mut App, scene: GameScene) {
+    app.add_systems(Update, handle_direction.run_if(in_state(scene)));
 }
 
 
 #[derive(Bundle)]
 pub(super) struct CharacterAnimationBundle {
     pub animation_bundle: AnimationBundle,
-    pub handles: CharacterAnimationHandles,
+    handles: CharacterAnimationHandles,
 }
 
 impl CharacterAnimationBundle {
@@ -26,8 +28,21 @@ impl CharacterAnimationBundle {
     }
 }
 
+fn handle_direction(mut query: Query<(&mut Handle<TextureAtlas>, &mut TextureAtlasSprite, &PositionTracker, &CharacterAnimationHandles), With<Character>>) {
+    for (mut texture_atlas, mut sprite, position_tracker, handles) in &mut query {
+        *texture_atlas = match position_tracker.direction() {
+            CharacterDirection::Up => handles.idle_up.clone_weak(),
+            CharacterDirection::Down => handles.idle_down.clone_weak(),
+            CharacterDirection::Left => handles.idle_side.clone_weak(),
+            CharacterDirection::Right => handles.idle_side.clone_weak(),
+        };
+
+        sprite.flip_x = *position_tracker.direction() == CharacterDirection::Left;
+    }
+}
+
 #[derive(Component, Getters)]
-pub struct CharacterAnimationHandles {
+struct CharacterAnimationHandles {
     idle_up: Handle<TextureAtlas>,
     idle_down: Handle<TextureAtlas>,
     idle_side: Handle<TextureAtlas>,

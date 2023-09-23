@@ -17,6 +17,7 @@ impl Plugin for GamePlugin {
         build_scenes(app);
         build_common(app);
         build_battle(app);
+        
     }
 }
 
