@@ -2,12 +2,18 @@ use once_cell::sync::Lazy;
 
 pub const CHARACTER_ANIMATIONS_FPS: usize = 60;
 
-pub static YOUNG_HERO: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("young_hero"));
+pub static FEM_RED: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_red"));
+pub static FEM_KNIFE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_knife"));
+pub static FEM_CANDY: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_candy"));
+pub static FEM_ROSE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_rose"));
 
 pub struct CharacterAnimationsPaths {
     pub idle_up: String,
     pub idle_down: String,
     pub idle_side: String,
+    pub walk_up: String,
+    pub walk_down: String,
+    pub walk_side: String,
     pub run_up: String,
     pub run_down: String,
     pub run_side: String,
@@ -17,6 +23,15 @@ pub struct CharacterAnimationsPaths {
     pub die_up: String,
     pub die_down: String,
     pub die_side: String,
+    pub spell_up: String,
+    pub spell_down: String,
+    pub spell_side: String,
+    pub stab_up: String,
+    pub stab_down: String,
+    pub stab_side: String,
+    pub swing_up: String,
+    pub swing_down: String,
+    pub swing_side: String,
 }
 
 fn create(folder: &str) -> CharacterAnimationsPaths {
@@ -24,6 +39,9 @@ fn create(folder: &str) -> CharacterAnimationsPaths {
         idle_up: format_path(folder, "Weapon Idle Up Sheet001.png"),
         idle_down: format_path(folder, "Weapon Idle Down Sheet001.png"),
         idle_side: format_path(folder, "Weapon Idle Side Sheet001.png"),
+        walk_up: format_path(folder, "Weapon Walk Up Sheet001.png"),
+        walk_down: format_path(folder, "Weapon Walk Down Sheet001.png"),
+        walk_side: format_path(folder, "Weapon Walk Side Sheet001.png"),
         run_up: format_path(folder, "Weapon Run Up Sheet001.png"),
         run_down: format_path(folder, "Weapon Run Down Sheet001.png"),
         run_side: format_path(folder, "Weapon Run Side Sheet001.png"),
@@ -33,6 +51,15 @@ fn create(folder: &str) -> CharacterAnimationsPaths {
         die_up: format_path(folder, "Die Up Sheet001.png"),
         die_down: format_path(folder, "Die Down Sheet001.png"),
         die_side: format_path(folder, "Die Side Sheet001.png"),
+        spell_up: format_path(folder, "Spell Up Sheet001.png"),
+        spell_down: format_path(folder, "Spell Down Sheet001.png"),
+        spell_side: format_path(folder, "Spell Side Sheet001.png"),
+        stab_up: format_path(folder, "Stab Up Sheet001.png"),
+        stab_down: format_path(folder, "Stab Down Sheet001.png"),
+        stab_side: format_path(folder, "Stab Side Sheet001.png"),
+        swing_up: format_path(folder, "Swing Up Sheet001.png"),
+        swing_down: format_path(folder, "Swing Down Sheet001.png"),
+        swing_side: format_path(folder, "Swing Side Sheet001.png"),
     }
 }
 

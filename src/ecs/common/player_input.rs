@@ -16,7 +16,7 @@ pub struct PlayerInput {
 }
 
 #[derive(Resource, Copy, Clone)]
-struct CursorPosition(pub Vec2);
+pub struct CursorPosition(pub Vec2);
 
 fn handle_mouse_position(
     windows: Query<&Window, With<PrimaryWindow>>,

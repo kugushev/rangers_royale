@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-const Z_SHIFT: f32 = 2.0;
+pub const Z_LAYER: f32 = 2.0;
 
 pub trait Vec2toVec3 {
     fn to_vec3(self) -> Vec3;
@@ -8,7 +8,7 @@ pub trait Vec2toVec3 {
 
 impl Vec2toVec3 for Vec2 {
     fn to_vec3(self) -> Vec3 {
-        Vec3::new(self.x, self.y, Z_SHIFT)
+        Vec3::new(self.x, self.y, Z_LAYER)
     }
 }
 

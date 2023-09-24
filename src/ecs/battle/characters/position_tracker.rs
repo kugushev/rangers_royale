@@ -7,6 +7,14 @@ pub(super) fn build_position_tracking(app: &mut App) {
     app.add_systems(Update, track_character_position);
 }
 
+#[derive(Component, Getters, Default)]
+pub struct PositionTracker {
+    #[getter(skip)]
+    previous: Option<Vec2>,
+    direction: CharacterDirection,
+    speed: f32
+}
+
 #[derive(Copy, Clone, PartialEq)]
 pub enum CharacterDirection {
     Up,
@@ -15,22 +23,8 @@ pub enum CharacterDirection {
     Right,
 }
 
-const DEFAULT_DIRECTION: CharacterDirection = CharacterDirection::Down;
-
-#[derive(Component, Getters)]
-pub struct PositionTracker {
-    #[getter(skip)]
-    previous: Option<Vec2>,
-    direction: CharacterDirection,
-}
-
-impl Default for PositionTracker {
-    fn default() -> Self {
-        Self {
-            previous: None,
-            direction: DEFAULT_DIRECTION,
-        }
-    }
+impl Default for CharacterDirection {
+    fn default() -> Self { Self::Down }
 }
 
 fn track_character_position(mut query: Query<(&mut PositionTracker, &Transform), With<Character>>) {
@@ -50,8 +44,9 @@ fn track_character_position(mut query: Query<(&mut PositionTracker, &Transform),
                 (0.0.., ..=0.0) => CharacterDirection::Up,
                 (..=0.0, 0.0..) => CharacterDirection::Down,
                 (..=0.0, ..=0.0) => CharacterDirection::Left,
-                (_, _) => DEFAULT_DIRECTION,
+                (_, _) => CharacterDirection::default(),
             };
+            position_tracker.speed = previous.distance(current).abs();
         }
 
         position_tracker.previous = Some(transform.translation.to_vec2());
