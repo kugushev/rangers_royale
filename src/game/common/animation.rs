@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::utils::Vec2toVec3;
+use crate::game::common::layer2d::Layer2d;
 
 pub(super) fn build_animation(app: &mut App) {
     app.add_systems(Update, animate_sprite);
@@ -15,7 +15,7 @@ pub struct AnimationBundle {
 }
 
 impl AnimationBundle {
-    pub fn new(position: Vec2, fps: usize, texture_atlas: Handle<TextureAtlas>) -> Self {
+    pub fn new(position: Vec2, layer: Layer2d, fps: usize, texture_atlas: Handle<TextureAtlas>) -> Self {
         Self {
             indices: AnimationIndices {
                 first: FIRST_INDEX,
@@ -25,7 +25,7 @@ impl AnimationBundle {
             sprite_sheet_bundle: SpriteSheetBundle {
                 texture_atlas,
                 sprite: TextureAtlasSprite::new(FIRST_INDEX),
-                transform: Transform::from_translation(position.to_vec3()),
+                transform: Transform::from_translation(layer.vec2_to_vec3(position)),
                 ..default()
             },
         }

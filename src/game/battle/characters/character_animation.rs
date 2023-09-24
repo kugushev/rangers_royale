@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
-use crate::ecs::battle::characters::Character;
-use crate::ecs::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
-use crate::ecs::common::animation::AnimationBundle;
-use crate::ecs::scenes::GameScene;
-use crate::registry::character_animations_paths::{CHARACTER_ANIMATIONS_FPS, CharacterAnimationsPaths};
+use crate::game::battle::characters::Character;
+use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIMATIONS_FPS, CharacterAnimationsPaths};
+use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
+use crate::game::common::animation::AnimationBundle;
+use crate::game::common::layer2d::Layer2d;
+use crate::game::scenes::GameScene;
 
 pub(super) fn build_character_animation(app: &mut App, scene: GameScene) {
     app.add_systems(Update, toggle_animation_texture_atlas.run_if(in_state(scene)));
@@ -22,7 +23,7 @@ impl CharacterAnimationBundle {
                asset_server: &AssetServer, texture_atlases: &mut Assets<TextureAtlas>) -> Self {
         let handles = CharacterAnimationHandles::new(asset_server, texture_atlases, paths);
         Self {
-            animation_bundle: AnimationBundle::new(position, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
+            animation_bundle: AnimationBundle::new(position, Layer2d::Character, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
             handles,
         }
     }

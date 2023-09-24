@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
-use crate::ecs::battle::characters::Character;
-use crate::utils::Vec3toVec2;
+use crate::game::battle::characters::Character;
+use crate::game::utils::Vec3Ex;
 
 pub(super) fn build_position_tracking(app: &mut App) {
     app.add_systems(Update, track_character_position);

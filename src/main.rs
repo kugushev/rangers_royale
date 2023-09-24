@@ -1,12 +1,10 @@
 
-mod registry;
-mod ecs;
-mod utils;
+mod game;
 
 use bevy::DefaultPlugins;
 use bevy::prelude::{App, ImagePlugin, PluginGroup};
 use bevy_ecs_tilemap::TilemapPlugin;
-use crate::ecs::GamePlugin;
+use crate::game::GamePlugin;
 
 fn main() {
     App::new()

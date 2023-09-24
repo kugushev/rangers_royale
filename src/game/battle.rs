@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use crate::ecs::battle::characters::build_characters;
-use crate::ecs::battle::world::build_world;
-use crate::ecs::scenes::GameScene;
+use crate::game::battle::characters::build_characters;
+use crate::game::battle::world::build_world;
+use crate::game::scenes::GameScene;
 
 mod world;
 mod characters;
