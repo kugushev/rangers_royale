@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use crate::game::common::game_cursor::GameCursor;
 use crate::game::common::player_input::PlayerInput;
-use crate::game::scenes::GameScene;
+use crate::game::game_mode::GameMode;
 
 pub(super) fn build_camera(app: &mut App) {
     app.add_systems(Startup, setup);
 
-    app.add_systems(PreUpdate, handle_camera_move.run_if(in_state(GameScene::Battle)));
+    app.add_systems(PreUpdate, handle_camera_move.run_if(in_state(GameMode::Battle)));
 }
 
 #[derive(Component)]

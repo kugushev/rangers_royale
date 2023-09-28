@@ -1,20 +1,23 @@
 use bevy::prelude::*;
 use crate::game::battle::build_battle;
 use crate::game::common::build_common;
-use crate::game::scenes::build_scenes;
+use crate::game::game_mode::build_game_mode;
+use crate::game::main_menu::build_main_menu;
 
 mod battle;
 mod common;
-mod scenes;
 pub mod utils;
+mod game_mode;
+mod main_menu;
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        build_scenes(app);
+        build_game_mode(app);
         build_common(app);
         build_battle(app);
+        build_main_menu(app);
     }
 }
 

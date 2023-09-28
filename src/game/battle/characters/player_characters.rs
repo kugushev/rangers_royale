@@ -3,14 +3,13 @@ use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animation::CharacterAnimationBundle;
 use crate::game::battle::characters::character_animations_paths::{FEM_CANDY, FEM_KNIFE, FEM_RED, FEM_ROSE};
 use crate::game::common::game_cursor::GameCursor;
-use crate::game::scenes::GameScene;
 use crate::game::common::moving::MoveCommand;
 use crate::game::common::player_input::PlayerInput;
-use crate::game::utils::Vec3Ex;
+use crate::game::game_mode::GameMode;
 
-pub(super) fn build_player_characters(app: &mut App, scene: GameScene) {
-    app.add_systems(OnEnter(scene), spawn_player_characters)
-        .add_systems(Update, move_player.run_if(in_state(scene)));
+pub(super) fn build_player_characters(app: &mut App) {
+    app.add_systems(OnEnter(GameMode::Battle), spawn_player_characters)
+        .add_systems(Update, move_player.run_if(in_state(GameMode::Battle)));
 }
 
 #[derive(Component)]

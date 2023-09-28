@@ -1,12 +1,9 @@
 use bevy::prelude::*;
 use bevy::math::Vec2;
 use derive_getters::Getters;
-
-use bevy::sprite::MaterialMesh2dBundle;
-use crate::game::common::camera::MainCamera;
 use crate::game::common::layer2d::Layer2d;
 use crate::game::common::player_input::PlayerInput;
-use crate::game::utils::Vec3Ex;
+use crate::game::game_mode::GameMode;
 
 pub(super) fn build_cursor(app: &mut App) {
     app.insert_resource(GameCursor {
@@ -14,8 +11,8 @@ pub(super) fn build_cursor(app: &mut App) {
     });
 
     app.add_systems(PreUpdate, sync_cursor_position)
-        .add_systems(Startup, setup_cursor_view)
-        .add_systems(Update, sync_cursor_view);
+        .add_systems(OnEnter(GameMode::Battle), setup_cursor_view)
+        .add_systems(Update, sync_cursor_view.run_if(in_state(GameMode::Battle)));
 }
 
 #[derive(Resource, Getters)]

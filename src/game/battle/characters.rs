@@ -7,12 +7,12 @@ use bevy::prelude::*;
 use crate::game::battle::characters::character_animation::build_character_animation;
 use crate::game::battle::characters::player_characters::build_player_characters;
 use crate::game::battle::characters::position_tracker::{build_position_tracking, PositionTracker};
-use crate::game::scenes::GameScene;
+use crate::game::game_mode::GameMode;
 
-pub(super) fn build_characters(app: &mut App, scene: GameScene) {
+pub(super) fn build_characters(app: &mut App) {
     build_position_tracking(app);
-    build_character_animation(app, scene);
-    build_player_characters(app, scene);
+    build_character_animation(app);
+    build_player_characters(app);
 }
 
 #[derive(Bundle, Default)]

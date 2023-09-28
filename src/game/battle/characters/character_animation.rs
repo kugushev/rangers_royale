@@ -5,10 +5,10 @@ use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIM
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
 use crate::game::common::animation::AnimationBundle;
 use crate::game::common::layer2d::Layer2d;
-use crate::game::scenes::GameScene;
+use crate::game::game_mode::GameMode;
 
-pub(super) fn build_character_animation(app: &mut App, scene: GameScene) {
-    app.add_systems(Update, toggle_animation_texture_atlas.run_if(in_state(scene)));
+pub(super) fn build_character_animation(app: &mut App) {
+    app.add_systems(Update, toggle_animation_texture_atlas.run_if(in_state(GameMode::Battle)));
 }
 
 
