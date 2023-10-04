@@ -6,7 +6,7 @@ pub(super) fn build_game_mode(app: &mut App) {
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum GameMode {
-    #[default]
     MainMenu,
+    #[default]
     Battle,
 }
