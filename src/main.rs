@@ -4,6 +4,7 @@ mod game;
 use bevy::DefaultPlugins;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use crate::game::GamePlugin;
 
 fn main() {
@@ -20,6 +21,7 @@ fn main() {
             }))
         .add_plugins(TilemapPlugin)
         .add_plugins(GamePlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .run();
 }
 

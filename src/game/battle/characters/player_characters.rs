@@ -1,3 +1,4 @@
+use std::ops::Add;
 use bevy::prelude::*;
 use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animation::CharacterAnimationBundle;
@@ -68,15 +69,16 @@ fn toggle_inputs_per_character(mut query: Query<&mut PlayerCharacter>, actors_in
 fn move_character(mut query: Query<(&mut MoveCommand, &PlayerCharacter, &Transform)>, actors_inputs: Res<ActorsInputs>, cursor: Res<HostCursor>) {
     let host_target = match cursor.action_command() {
         Some(c) => { Some(*cursor.position()) }
-        None => { None }`
+        None => { None }
     };
 
     for (mut move_command, character, transform) in &mut query {
         if let Some(input_id) = character.direct_input_id {
             if let Some(input) = actors_inputs.get(input_id) {
+                const STEP_LENGTH: f32 = 10.;
                 let mut position = transform.translation.to_vec2();
-                position.x += input.horizontal();
-                position.y += input.vertical();
+                position.x += *input.horizontal() * STEP_LENGTH;
+                position.y += *input.vertical() * STEP_LENGTH;
                 move_command.target = Some(position);
             } else {
                 warn!("Input not found {input_id}")

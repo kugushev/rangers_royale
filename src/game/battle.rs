@@ -3,7 +3,7 @@ use crate::game::battle::characters::build_characters;
 use crate::game::battle::world::build_world;
 use crate::game::game_mode::GameMode;
 
-mod world;
+pub mod world;
 mod characters;
 
 pub(super) fn build_battle(app: &mut App) {

@@ -34,7 +34,7 @@ fn handle_gamepad_input(
     axes: Res<Axis<GamepadAxis>>,
     mut inputs: ResMut<ActorsInputs>,
 ) {
-    const DEAD_ZONE: f32 = 0.01;
+    const DEAD_ZONE: f32 = 0.1;
     let stick_to_axis = |axis_type, gamepad| {
         let axis = axes.get(GamepadAxis::new(gamepad, axis_type));
         if let Some(value) = axis {

@@ -1,7 +1,6 @@
 use bevy::prelude::{App, Resource};
-use crate::game::game_mode::GameMode;
 
-pub(super) fn build_world(app: &mut App){
+pub(super) fn build_world(app: &mut App) {
     app.insert_resource(WorldMap::default());
 }
 
@@ -14,10 +13,12 @@ pub(crate) struct WorldMap {
 }
 
 impl WorldMap {
-    pub fn get_left(&self) -> f32 { -1.0 * self.vertical_tiles as f32 * self.tile_width / 2.0 }
-    pub fn get_right(&self) -> f32 { self.vertical_tiles as f32 * self.tile_width / 2.0 }
-    pub fn get_top(&self) -> f32 { self.horizontal_tiles as f32 * self.tile_height / 2.0 }
-    pub fn get_bottom(&self) -> f32 { -1.0 * self.horizontal_tiles as f32 * self.tile_height / 2.0 }
+    pub fn get_height(&self) -> f32 { self.vertical_tiles as f32 * self.tile_height }
+    pub fn get_width(&self) -> f32 { self.horizontal_tiles as f32 * self.tile_width }
+    pub fn get_left(&self) -> f32 { -1.0 * self.get_height() / 2.0 }
+    pub fn get_right(&self) -> f32 { self.get_height() / 2.0 }
+    pub fn get_top(&self) -> f32 { self.get_width() / 2.0 }
+    pub fn get_bottom(&self) -> f32 { -1.0 * self.get_width() / 2.0 }
 }
 
 impl Default for WorldMap {
@@ -26,7 +27,7 @@ impl Default for WorldMap {
             horizontal_tiles: 4,
             vertical_tiles: 8,
             tile_width: 128.0,
-            tile_height: 128.0
+            tile_height: 128.0,
         }
     }
 }

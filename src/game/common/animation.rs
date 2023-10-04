@@ -12,6 +12,7 @@ pub struct AnimationBundle {
     pub indices: AnimationIndices,
     pub timer: AnimationTimer,
     pub sprite_sheet_bundle: SpriteSheetBundle,
+    pub layer: Layer2d
 }
 
 impl AnimationBundle {
@@ -28,6 +29,7 @@ impl AnimationBundle {
                 transform: Transform::from_translation(layer.vec2_to_vec3(position)),
                 ..default()
             },
+            layer,
         }
     }
 }

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::game::battle::world::WorldMap;
 
 pub(super) fn build_layer2d(app: &mut App) {
     app.add_systems(PostUpdate, y_sort);
@@ -19,10 +20,13 @@ impl Layer2d {
     }
 }
 
-fn y_sort(mut q: Query<(&mut Transform, &Layer2d)>) {
-    for (mut transform, layer) in q.iter_mut() {
-        let z = layer_to_z(*layer);
-        transform.translation.z = z - (1.0 / (1.0 + (2.0f32.powf(-0.01 * transform.translation.y))));
+fn y_sort(mut query: Query<(&mut Transform, &Layer2d)>, world_map: Res<WorldMap>) {
+    for (mut transform, layer) in &mut query {
+        let base = layer_to_z(*layer);
+        let shift = transform.translation.y / world_map.get_height();
+        transform.translation.z = base - shift.clamp(-1., 1.);
+        println!("{}={base} - {}", transform.translation.z, shift)
+        //transform.translation.z = z - (1.0 / (1.0 + (2.0f32.powf(-0.01 * transform.translation.y))));
     }
 }
 
