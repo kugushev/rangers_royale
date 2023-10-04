@@ -5,6 +5,8 @@ pub(super) fn build_layer2d(app: &mut App) {
     app.add_systems(PostUpdate, y_sort);
 }
 
+pub const LAYER_SIZE: f32 = 2.;
+
 #[derive(Component, Copy, Clone)]
 pub enum Layer2d {
     Background,
@@ -26,16 +28,15 @@ fn y_sort(mut query: Query<(&mut Transform, &Layer2d)>, world_map: Res<WorldMap>
         let shift = transform.translation.y / world_map.get_height();
         transform.translation.z = base - shift.clamp(-1., 1.);
         println!("{}={base} - {}", transform.translation.z, shift)
-        //transform.translation.z = z - (1.0 / (1.0 + (2.0f32.powf(-0.01 * transform.translation.y))));
     }
 }
 
 fn layer_to_z(layer: Layer2d) -> f32 {
     match layer {
         Layer2d::Background => 0.,
-        Layer2d::Ground => 2.,
-        Layer2d::Character => 4.,
-        Layer2d::Overlay => 6.,
+        Layer2d::Ground => LAYER_SIZE,
+        Layer2d::Character => 2. * LAYER_SIZE,
+        Layer2d::Overlay => 3. * LAYER_SIZE,
     }
 }
 

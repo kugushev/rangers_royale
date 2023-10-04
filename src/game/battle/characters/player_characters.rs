@@ -1,10 +1,11 @@
-use std::ops::Add;
+use std::ops::{Add, Deref};
 use bevy::prelude::*;
 use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animation::CharacterAnimationBundle;
 use crate::game::battle::characters::character_animations_paths::{FEM_CANDY, FEM_KNIFE, FEM_RED, FEM_ROSE};
 use crate::game::players::host_cursor::HostCursor;
 use crate::game::common::moving::MoveCommand;
+use crate::game::common::selection_mark::SelectionMarkBundle;
 use crate::game::game_mode::GameMode;
 use crate::game::players::actors_inputs::{ActorInput, ActorsInputs};
 use crate::game::utils::Vec3Ex;
@@ -27,7 +28,9 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             PlayerCharacter::default(),
             CharacterAnimationBundle::new(position, paths, &asset_server, &mut texture_atlases),
             MoveCommand::default()
-        ));
+        )).with_children(|parent|{
+            parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));
+        });
     };
     const SHIFT: f32 = 100.;
     do_spawn(Vec2::new(0., SHIFT), &FEM_RED);
