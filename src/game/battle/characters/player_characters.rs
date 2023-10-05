@@ -1,13 +1,14 @@
-use std::ops::{Add, Deref};
+use std::ops::Deref;
 use bevy::prelude::*;
+use derive_getters::Getters;
 use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animation::CharacterAnimationBundle;
 use crate::game::battle::characters::character_animations_paths::{FEM_CANDY, FEM_KNIFE, FEM_RED, FEM_ROSE};
+use crate::game::battle::characters::selection_mark::SelectionMarkBundle;
 use crate::game::players::host_cursor::HostCursor;
 use crate::game::common::moving::MoveCommand;
-use crate::game::common::selection_mark::SelectionMarkBundle;
 use crate::game::game_mode::GameMode;
-use crate::game::players::actors_inputs::{ActorInput, ActorsInputs};
+use crate::game::players::actors_inputs::ActorsInputs;
 use crate::game::utils::Vec3Ex;
 
 pub(super) fn build_player_characters(app: &mut App) {
@@ -16,8 +17,8 @@ pub(super) fn build_player_characters(app: &mut App) {
         .add_systems(PreUpdate, move_character.after(toggle_inputs_per_character).run_if(in_state(GameMode::Battle)));
 }
 
-#[derive(Component, Default)]
-struct PlayerCharacter {
+#[derive(Component, Default, Getters)]
+pub struct PlayerCharacter {
     direct_input_id: Option<usize>,
 }
 
