@@ -5,6 +5,7 @@ use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animation::CharacterAnimationBundle;
 use crate::game::battle::characters::character_animations_paths::{FEM_CANDY, FEM_KNIFE, FEM_RED, FEM_ROSE};
 use crate::game::battle::characters::selection_mark::SelectionMarkBundle;
+use crate::game::common::rect_collider::EllipseCollider;
 use crate::game::players::host_cursor::HostCursor;
 use crate::game::common::moving::MoveCommand;
 use crate::game::game_mode::GameMode;
@@ -28,8 +29,9 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             CharacterBundle::default(),
             PlayerCharacter::default(),
             CharacterAnimationBundle::new(position, paths, &asset_server, &mut texture_atlases),
-            MoveCommand::default()
-        )).with_children(|parent|{
+            MoveCommand::default(),
+            EllipseCollider::new()
+        )).with_children(|parent| {
             parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));
         });
     };
