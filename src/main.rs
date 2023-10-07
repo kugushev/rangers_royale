@@ -21,7 +21,7 @@ fn main() {
             }))
         .add_plugins(TilemapPlugin)
         .add_plugins(GamePlugin)
-        .add_plugin(WorldInspectorPlugin::new())
+        .add_plugins(WorldInspectorPlugin::new())
         .run();
 }
 

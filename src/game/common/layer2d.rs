@@ -27,7 +27,6 @@ fn y_sort(mut query: Query<(&mut Transform, &Layer2d)>, world_map: Res<WorldMap>
         let base = layer_to_z(*layer);
         let shift = transform.translation.y / world_map.get_height();
         transform.translation.z = base - shift.clamp(-1., 1.);
-        println!("{}={base} - {}", transform.translation.z, shift)
     }
 }
 
