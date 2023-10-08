@@ -1,5 +1,7 @@
+use std::collections::VecDeque;
 use bevy::prelude::*;
-use crate::game::utils::Vec3Ex;
+use crate::game::common::obstacle::Obstacle;
+use crate::game::utils::{find_circle_to_circle_intersections, Vec3Ex};
 
 pub(super) fn build_moving(app: &mut App) {
     app.add_systems(Update, handle_move);
@@ -22,8 +24,10 @@ impl Default for MoveCommand {
     }
 }
 
-fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform)>, time: Res<Time>) {
-    for (mut command, mut transform) in &mut query {
+fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
+    // todo: refactor
+
+    for (mut command, mut transform, obstacle, entity) in &mut query {
         let target = match command.target {
             None => { continue; }
             Some(t) => t
@@ -39,13 +43,77 @@ fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform)>, time: Res<T
             command.target = None;
         } else {
             let direction = delta.normalize() * move_length;
-            let new_position = current + direction;
+            let mut new_position = current + direction;
 
-            transform.translation = vec2_to_vec3(new_position, z);
+            let mut final_new_position = Some(new_position);
+            let mut evade_buffer = VecDeque::new();
+            'collisions: for _ in 0..16 {
+                let no_collisions = check_if_not_collisions(new_position, current, target, move_length,
+                                                            *obstacle.radius(),
+                                                            entity,
+                                                            &obstacles_q,
+                                                            &mut evade_buffer);
+
+                if no_collisions {
+                    final_new_position = Some(new_position);
+                    break 'collisions;
+                }
+
+                if let Some(p) = evade_buffer.pop_front() {
+                    new_position = p;
+                }
+            }
+
+            match final_new_position {
+                None => { println!("Shit!") }
+                Some(p) => transform.translation = vec2_to_vec3(p, z)
+            }
         }
     }
 
     fn vec2_to_vec3(vec2: Vec2, z: f32) -> Vec3 {
         Vec3::new(vec2.x, vec2.y, z)
     }
+}
+
+fn check_if_not_collisions(new_position: Vec2, current: Vec2, target: Vec2, move_length: f32,
+                           subject_radius: f32, subject_entity: Entity,
+                           obstacles_q: &Query<(&Obstacle, &GlobalTransform, Entity)>,
+                           evade_buffer: &mut VecDeque<Vec2>) -> bool
+{
+    for (obstacle, transform, obstacle_entity) in obstacles_q {
+        if obstacle_entity == subject_entity {
+            continue;
+        }
+
+        let obstacle_radius = *obstacle.radius();
+        let obstacle_translation = transform.translation().to_vec2();
+        if obstacle_translation.distance(new_position) > subject_radius + obstacle_radius {
+            continue;
+        }
+
+        let intersections = find_circle_to_circle_intersections(current, move_length,
+                                                                obstacle_translation, current.distance(obstacle_translation));
+        match intersections {
+            [None, None] => {
+                continue;
+            }
+            [Some(intersection), None] => {
+                evade_buffer.push_back(intersection);
+                return false;
+            }
+            [Some(intersection1), Some(intersection2)] => {
+                if intersection1.distance(target) < intersection2.distance(target) {
+                    evade_buffer.push_back(intersection1);
+                    evade_buffer.push_back(intersection2);
+                } else {
+                    evade_buffer.push_back(intersection2);
+                    evade_buffer.push_back(intersection1);
+                }
+                return false;
+            }
+            _ => { error!("Unexpected intersections") }
+        }
+    }
+    return true;
 }

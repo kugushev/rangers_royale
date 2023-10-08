@@ -10,6 +10,7 @@ use crate::game::battle::characters::selection_mark::SelectionMarkBundle;
 use crate::game::common::cursor_collider::CursorCollider;
 use crate::game::players::host_cursor::HostCursor;
 use crate::game::common::moving::MoveCommand;
+use crate::game::common::obstacle::Obstacle;
 use crate::game::game_mode::GameMode;
 use crate::game::players::actors_inputs::ActorsInputs;
 use crate::game::utils::Vec3Ex;
@@ -44,7 +45,8 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             PlayerCharacter::default(),
             CharacterAnimationBundle::new(position, paths, &asset_server, &mut texture_atlases),
             MoveCommand::default(),
-            CursorCollider::new()
+            CursorCollider::new(),
+            Obstacle::new(30.)
         )).with_children(|parent| {
             parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));
         });
