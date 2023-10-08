@@ -15,7 +15,7 @@ pub struct PositionTracker {
     speed: f32
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum CharacterDirection {
     Up,
     Down,

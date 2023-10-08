@@ -14,8 +14,9 @@ pub(super) fn build_character_animation(app: &mut App) {
 
 #[derive(Bundle)]
 pub(super) struct CharacterAnimationBundle {
-    pub animation_bundle: AnimationBundle,
+    animation_bundle: AnimationBundle,
     handles: CharacterAnimationHandles,
+    current_state: AnimationState,
 }
 
 impl CharacterAnimationBundle {
@@ -25,39 +26,22 @@ impl CharacterAnimationBundle {
         Self {
             animation_bundle: AnimationBundle::new(position, Layer2d::Character, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
             handles,
+            current_state: AnimationState {
+                direction: CharacterDirection::Down,
+                speed: MoveSpeed::Idle,
+            },
         }
     }
 }
 
-fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &mut TextureAtlasSprite, &PositionTracker, &CharacterAnimationHandles), With<Character>>) {
-    for (mut texture_atlas, mut sprite, position_tracker, handles) in &mut query {
-        let speed = match *position_tracker.speed() {
-            0.0 => MoveSpeed::Idle,
-            0.0..=1.0 => MoveSpeed::Walk,
-            1.0.. => MoveSpeed::Run,
-            _ => MoveSpeed::Idle
-        };
-
-        *texture_atlas = match (position_tracker.direction(), speed) {
-            (CharacterDirection::Up, MoveSpeed::Run) => handles.run_up.clone_weak(),
-            (CharacterDirection::Up, MoveSpeed::Walk) => handles.walk_up.clone_weak(),
-            (CharacterDirection::Up, MoveSpeed::Idle) => handles.idle_up.clone_weak(),
-            (CharacterDirection::Down, MoveSpeed::Run) => handles.run_down.clone_weak(),
-            (CharacterDirection::Down, MoveSpeed::Walk) => handles.walk_down.clone_weak(),
-            (CharacterDirection::Down, MoveSpeed::Idle) => handles.idle_down.clone_weak(),
-            (CharacterDirection::Left, MoveSpeed::Run) => handles.run_side.clone_weak(),
-            (CharacterDirection::Left, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
-            (CharacterDirection::Left, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
-            (CharacterDirection::Right, MoveSpeed::Run) => handles.run_side.clone_weak(),
-            (CharacterDirection::Right, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
-            (CharacterDirection::Right, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
-        };
-
-        sprite.flip_x = *position_tracker.direction() == CharacterDirection::Left;
-    }
-
-    enum MoveSpeed { Idle, Walk, Run }
+#[derive(Component)]
+struct AnimationState {
+    direction: CharacterDirection,
+    speed: MoveSpeed,
 }
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+enum MoveSpeed { Idle, Walk, Run }
 
 #[derive(Component, Getters)]
 struct CharacterAnimationHandles {
@@ -129,3 +113,46 @@ fn load_spritesheet(asset_server: &AssetServer, texture_atlases: &mut Assets<Tex
                                                 None);
     texture_atlases.add(texture_atlas)
 }
+
+fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &mut TextureAtlasSprite, &PositionTracker, &CharacterAnimationHandles, &mut AnimationState), With<Character>>) {
+    for (mut texture_atlas, mut sprite, position_tracker, handles, mut current_state) in &mut query {
+        let direction = *position_tracker.direction();
+
+        let speed = match *position_tracker.speed() {
+            s if s <= f32::EPSILON => MoveSpeed::Idle,
+            s if s > f32::EPSILON => MoveSpeed::Run,
+            s => {
+                error!("Unexpected speed {s}");
+                MoveSpeed::Idle
+            }
+        };
+
+        let changed = current_state.direction != direction || current_state.speed != speed;
+
+        if !changed {
+            continue;
+        }
+
+        // todo: add anti-shake - if changes makes every frame (Left-Up-Left), don't change atlas/flip
+
+        *texture_atlas = match (direction, speed) {
+            (CharacterDirection::Up, MoveSpeed::Run) => handles.run_up.clone_weak(),
+            (CharacterDirection::Up, MoveSpeed::Walk) => handles.walk_up.clone_weak(),
+            (CharacterDirection::Up, MoveSpeed::Idle) => handles.idle_up.clone_weak(),
+            (CharacterDirection::Down, MoveSpeed::Run) => handles.run_down.clone_weak(),
+            (CharacterDirection::Down, MoveSpeed::Walk) => handles.walk_down.clone_weak(),
+            (CharacterDirection::Down, MoveSpeed::Idle) => handles.idle_down.clone_weak(),
+            (CharacterDirection::Left, MoveSpeed::Run) => handles.run_side.clone_weak(),
+            (CharacterDirection::Left, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
+            (CharacterDirection::Left, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
+            (CharacterDirection::Right, MoveSpeed::Run) => handles.run_side.clone_weak(),
+            (CharacterDirection::Right, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
+            (CharacterDirection::Right, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
+        };
+        sprite.flip_x = direction == CharacterDirection::Left;
+
+        current_state.direction = direction;
+        current_state.speed = speed;
+    }
+}
+
