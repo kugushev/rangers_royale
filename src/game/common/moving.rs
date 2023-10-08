@@ -28,13 +28,17 @@ fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, En
     // todo: refactor
 
     for (mut command, mut transform, obstacle, entity) in &mut query {
-        let target = match command.target {
+        let mut target = match command.target {
             None => { continue; }
             Some(t) => t
         };
 
         let current = transform.translation.to_vec2();
         let z = transform.translation.z;
+
+        let subject_radius = *obstacle.radius();
+
+        target = move_target_closer_if_not_reachable(target, &obstacles_q, entity, current, subject_radius);
 
         let move_length = time.delta_seconds() * command.speed;
         let delta = target - current;
@@ -49,7 +53,7 @@ fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, En
             let mut evade_buffer = VecDeque::new();
             'collisions: for _ in 0..16 {
                 let no_collisions = check_if_not_collisions(new_position, current, target, move_length,
-                                                            *obstacle.radius(),
+                                                            subject_radius,
                                                             entity,
                                                             &obstacles_q,
                                                             &mut evade_buffer);
@@ -74,6 +78,26 @@ fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, En
     fn vec2_to_vec3(vec2: Vec2, z: f32) -> Vec3 {
         Vec3::new(vec2.x, vec2.y, z)
     }
+}
+
+fn move_target_closer_if_not_reachable(target: Vec2, obstacles_q: &Query<(&Obstacle, &GlobalTransform, Entity)>, subject_entity: Entity, current: Vec2, subject_radius: f32) -> Vec2 {
+    for (obstacle, transform, obstacle_entity) in obstacles_q {
+        if obstacle_entity == subject_entity {
+            continue;
+        }
+
+        let obstacle_position = transform.translation().to_vec2();
+        let intersection_radius = *obstacle.radius() + subject_radius;
+        if obstacle_position.distance(target) > intersection_radius {
+            continue;
+        }
+        let delta = obstacle_position - current ;
+        let new_delta_length = (delta.length() - intersection_radius).max(0.);
+        let clamped_direction = delta.normalize() * new_delta_length;
+        return current + clamped_direction;
+    }
+
+    target
 }
 
 fn check_if_not_collisions(new_position: Vec2, current: Vec2, target: Vec2, move_length: f32,
