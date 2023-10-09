@@ -5,10 +5,9 @@ use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIM
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
 use crate::game::common::animation::AnimationBundle;
 use crate::game::common::layer2d::Layer2d;
-use crate::game::game_mode::GameMode;
 
 pub(super) fn build_character_animation(app: &mut App) {
-    app.add_systems(Update, toggle_animation_texture_atlas.run_if(in_state(GameMode::Battle)));
+    app.add_systems(Update, toggle_animation_texture_atlas);
 }
 
 
@@ -41,7 +40,7 @@ struct AnimationState {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-enum MoveSpeed { Idle, Walk, Run }
+enum MoveSpeed { Idle, _Walk, Run }
 
 #[derive(Component, Getters)]
 struct CharacterAnimationHandles {
@@ -137,16 +136,16 @@ fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &
 
         *texture_atlas = match (direction, speed) {
             (CharacterDirection::Up, MoveSpeed::Run) => handles.run_up.clone_weak(),
-            (CharacterDirection::Up, MoveSpeed::Walk) => handles.walk_up.clone_weak(),
+            (CharacterDirection::Up, MoveSpeed::_Walk) => handles.walk_up.clone_weak(),
             (CharacterDirection::Up, MoveSpeed::Idle) => handles.idle_up.clone_weak(),
             (CharacterDirection::Down, MoveSpeed::Run) => handles.run_down.clone_weak(),
-            (CharacterDirection::Down, MoveSpeed::Walk) => handles.walk_down.clone_weak(),
+            (CharacterDirection::Down, MoveSpeed::_Walk) => handles.walk_down.clone_weak(),
             (CharacterDirection::Down, MoveSpeed::Idle) => handles.idle_down.clone_weak(),
             (CharacterDirection::Left, MoveSpeed::Run) => handles.run_side.clone_weak(),
-            (CharacterDirection::Left, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
+            (CharacterDirection::Left, MoveSpeed::_Walk) => handles.walk_side.clone_weak(),
             (CharacterDirection::Left, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
             (CharacterDirection::Right, MoveSpeed::Run) => handles.run_side.clone_weak(),
-            (CharacterDirection::Right, MoveSpeed::Walk) => handles.walk_side.clone_weak(),
+            (CharacterDirection::Right, MoveSpeed::_Walk) => handles.walk_side.clone_weak(),
             (CharacterDirection::Right, MoveSpeed::Idle) => handles.idle_side.clone_weak(),
         };
         sprite.flip_x = direction == CharacterDirection::Left;

@@ -3,11 +3,11 @@ use bevy::math::Vec2;
 use bevy::window::PrimaryWindow;
 use derive_getters::Getters;
 
-pub(super) fn build_lead_cursor(app: &mut App) {
-    app.insert_resource(HostCursor {
+pub(super) fn build_indirect_input(app: &mut App) {
+    app.insert_resource(IndirectInputCursor {
         position: Vec2::ZERO,
-        action_command: None,
-        select_command: None,
+        do_action: None,
+        do_select: None,
     });
 
     app.add_systems(First, handle_mouse_position)
@@ -15,16 +15,16 @@ pub(super) fn build_lead_cursor(app: &mut App) {
 }
 
 #[derive(Resource, Getters)]
-pub struct HostCursor {
+pub struct IndirectInputCursor {
     position: Vec2,
-    action_command: Option<()>,
-    select_command: Option<()>,
+    do_action: Option<()>,
+    do_select: Option<()>,
 }
 
 fn handle_mouse_position(
     windows: Query<&Window, With<PrimaryWindow>>,
     camera_q: Query<(&GlobalTransform, &Camera)>,
-    mut cursor: ResMut<HostCursor>,
+    mut cursor: ResMut<IndirectInputCursor>,
 ) {
     let cursor_position = match windows.single().cursor_position() {
         None => { return; }
@@ -37,10 +37,10 @@ fn handle_mouse_position(
     }
 }
 
-fn handle_mouse_input(mouse_button: Res<Input<MouseButton>>, mut cursor: ResMut<HostCursor>) {
+fn handle_mouse_input(mouse_button: Res<Input<MouseButton>>, mut cursor: ResMut<IndirectInputCursor>) {
     let for_button = |button|
         if mouse_button.just_pressed(button) { Some(()) } else { None };
 
-    cursor.action_command = for_button(MouseButton::Right);
-    cursor.select_command = for_button(MouseButton::Left);
+    cursor.do_action = for_button(MouseButton::Right);
+    cursor.do_select = for_button(MouseButton::Left);
 }

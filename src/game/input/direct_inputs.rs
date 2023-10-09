@@ -3,26 +3,26 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use derive_getters::Getters;
 
-pub(super) fn build_actors_inputs(app: &mut App) {
-    app.insert_resource(ActorsInputs::default());
+pub(super) fn build_direct_inputs(app: &mut App) {
+    app.insert_resource(DirectInputs::default());
     app.add_systems(First, handle_gamepad_input);
 }
 
 #[derive(Resource, Default)]
-pub struct ActorsInputs(HashMap<usize, ActorInput>);
+pub struct DirectInputs(HashMap<usize, DirectDeviceInput>);
 
-impl ActorsInputs {
-    pub fn get_actors(&self) -> Iter<usize, ActorInput> {
+impl DirectInputs {
+    pub fn get_devices(&self) -> Iter<usize, DirectDeviceInput> {
         self.0.iter()
     }
 
-    pub fn get(&self, id: usize) -> Option<&ActorInput> {
+    pub fn get(&self, id: usize) -> Option<&DirectDeviceInput> {
         self.0.get(&id)
     }
 }
 
 #[derive(Default, Getters)]
-pub struct ActorInput {
+pub struct DirectDeviceInput {
     action_command: Option<()>,
     horizontal: f32,
     vertical: f32,
@@ -32,7 +32,7 @@ fn handle_gamepad_input(
     gamepads: Res<Gamepads>,
     button_inputs: Res<Input<GamepadButton>>,
     axes: Res<Axis<GamepadAxis>>,
-    mut inputs: ResMut<ActorsInputs>,
+    mut inputs: ResMut<DirectInputs>,
 ) {
     const DEAD_ZONE: f32 = 0.1;
     let stick_to_axis = |axis_type, gamepad| {

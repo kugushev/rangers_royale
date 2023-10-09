@@ -3,14 +3,14 @@ use crate::game::battle::build_battle;
 use crate::game::common::build_common;
 use crate::game::game_mode::build_game_mode;
 use crate::game::main_menu::build_main_menu;
-use crate::game::players::build_players;
+use crate::game::input::build_players;
 
 mod battle;
 mod common;
 pub mod utils;
 mod game_mode;
 mod main_menu;
-pub mod players;
+pub mod input;
 
 pub struct GamePlugin;
 

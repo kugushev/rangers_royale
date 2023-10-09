@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
 use crate::game::common::gizmos_manager::GizmosManager;
-use crate::game::players::host_cursor::HostCursor;
+use crate::game::input::indirect_input::IndirectInputCursor;
 use crate::game::utils::Vec3Ex;
 
 pub(super) fn build_cursor_collider(app: &mut App) {
@@ -20,16 +20,16 @@ pub struct CursorCollider {
 }
 
 impl CursorCollider {
-    pub fn new() -> Self {
+    pub fn new(size: Vec2, shift: Vec2) -> Self {
         Self {
             hovered: false,
-            size: Vec2::new(60., 100.),
-            shift: Vec2::new(0., 40.),
+            size,
+            shift,
         }
     }
 }
 
-fn hover_test(mut query: Query<(&mut CursorCollider, &GlobalTransform)>, cursor: Res<HostCursor>) {
+fn hover_test(mut query: Query<(&mut CursorCollider, &GlobalTransform)>, cursor: Res<IndirectInputCursor>) {
     for (mut collider, transform) in &mut query {
         let translation = transform.translation();
         let left = translation.x + collider.shift.x - (collider.size.x / 2.);

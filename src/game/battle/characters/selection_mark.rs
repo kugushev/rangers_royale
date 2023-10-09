@@ -1,7 +1,7 @@
-use bevy::ecs::bundle::DynamicBundle;
 use bevy::prelude::*;
-use crate::game::battle::characters::Character;
-use crate::game::battle::characters::player_characters::{InputType, PlayerCharacter};
+use crate::game::battle::characters::controller_direct::ControllerDirect;
+use crate::game::battle::characters::controller_indirect::ControllerIndirect;
+use crate::game::battle::characters::player_characters::PlayerCharacter;
 use crate::game::common::layer2d::LAYER_SIZE;
 
 pub(super) fn build_selection_mark(app: &mut App) {
@@ -21,6 +21,7 @@ impl SelectionMarkBundle {
             sprite: SpriteBundle {
                 texture: asset_server.load("my/Selector.png"),
                 transform: Transform::from_xyz(0., 0., -1. * LAYER_SIZE),
+                visibility: Visibility::Hidden,
                 ..default()
             },
         }
@@ -30,13 +31,18 @@ impl SelectionMarkBundle {
 #[derive(Component)]
 pub struct SelectionMark;
 
-fn change_appearance(mut query: Query<(&mut Sprite, &Parent), With<SelectionMark>>, mut parent_query: Query<&PlayerCharacter>) {
-    for (mut sprite, parent) in &mut query {
-        if let Ok(parent_character) = parent_query.get(parent.get()) {
-            sprite.color = match parent_character.input() {
-                InputType::DirectInput(_) => Color::LIME_GREEN,
-                InputType::SelectionInput(true) => Color::default(),
-                InputType::SelectionInput(false) => Color::NONE
+fn change_appearance(mut query: Query<(&mut Sprite, &mut Visibility, &Parent), With<SelectionMark>>,
+                     player_parent_query: Query<(&ControllerIndirect, &ControllerDirect), With<PlayerCharacter>>) {
+    for (mut sprite, mut visibility, parent) in &mut query {
+        *visibility = Visibility::Hidden;
+        if let Ok((indirect, direct)) = player_parent_query.get(parent.get()) {
+            *visibility = Visibility::Inherited;
+            sprite.color = if direct.active() {
+                Color::LIME_GREEN
+            } else if indirect.selected {
+                Color::default()
+            } else {
+                Color::default().with_a(0.1)
             };
         }
     }

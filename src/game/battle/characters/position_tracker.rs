@@ -12,7 +12,7 @@ pub struct PositionTracker {
     #[getter(skip)]
     previous: Option<Vec2>,
     direction: CharacterDirection,
-    speed: f32
+    speed: f32,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -38,14 +38,20 @@ fn track_character_position(mut query: Query<(&mut PositionTracker, &Transform),
             let dot_plus_45 = direction_vec.dot(look_plus_45);
             let dot_minus_45 = direction_vec.dot(look_minus_45);
 
-            position_tracker.direction = match (dot_plus_45, dot_minus_45) {
-                (0.0, 0.0) => position_tracker.direction,
-                (0.0.., 0.0..) => CharacterDirection::Right,
-                (0.0.., ..=0.0) => CharacterDirection::Up,
-                (..=0.0, 0.0..) => CharacterDirection::Down,
-                (..=0.0, ..=0.0) => CharacterDirection::Left,
-                (_, _) => CharacterDirection::default(),
-            };
+            position_tracker.direction =
+                if dot_plus_45.abs() <= f32::EPSILON && dot_minus_45.abs() <= f32::EPSILON {
+                    position_tracker.direction
+                } else if dot_plus_45 > 0.0 && dot_minus_45 > 0.0 {
+                    CharacterDirection::Right
+                } else if dot_plus_45 > 0.0 && dot_minus_45 <= 0.0 {
+                    CharacterDirection::Up
+                } else if dot_plus_45 <= 0.0 && dot_minus_45 > 0.0 {
+                    CharacterDirection::Down
+                } else if dot_plus_45 <= 0.0 && dot_minus_45 <= 0.0 {
+                    CharacterDirection::Left
+                } else {
+                    CharacterDirection::default()
+                };
             position_tracker.speed = previous.distance(current).abs();
         }
 

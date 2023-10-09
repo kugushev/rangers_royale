@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use bevy::prelude::*;
+use derive_getters::Getters;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::{find_circle_to_circle_intersections, Vec3Ex};
 
@@ -9,10 +10,16 @@ pub(super) fn build_moving(app: &mut App) {
 
 const DEFAULT_SPEED: f32 = 100.0;
 
-#[derive(Component)]
+#[derive(Component, Getters)]
 pub struct MoveCommand {
-    pub target: Option<Vec2>,
-    pub speed: f32,
+    target: Option<Vec2>,
+    speed: f32
+}
+
+impl MoveCommand {
+    pub fn set_target(&mut self, target: Vec2) {
+        self.target = Some(target);
+    }
 }
 
 impl Default for MoveCommand {
@@ -25,8 +32,8 @@ impl Default for MoveCommand {
 }
 
 fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
-    // todo: refactor
 
+    // todo: refactor
     for (mut command, mut transform, obstacle, entity) in &mut query {
         let mut target = match command.target {
             None => { continue; }
@@ -91,7 +98,7 @@ fn move_target_closer_if_not_reachable(target: Vec2, obstacles_q: &Query<(&Obsta
         if obstacle_position.distance(target) > intersection_radius {
             continue;
         }
-        let delta = obstacle_position - current ;
+        let delta = obstacle_position - current;
         let new_delta_length = (delta.length() - intersection_radius).max(0.);
         let clamped_direction = delta.normalize() * new_delta_length;
         return current + clamped_direction;
