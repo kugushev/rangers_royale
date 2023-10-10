@@ -4,21 +4,18 @@ use bevy::window::PrimaryWindow;
 use derive_getters::Getters;
 
 pub(super) fn build_indirect_input(app: &mut App) {
-    app.insert_resource(IndirectInputCursor {
-        position: Vec2::ZERO,
-        do_action: None,
-        do_select: None,
-    });
+    app.insert_resource(IndirectInputCursor::default());
 
     app.add_systems(First, handle_mouse_position)
         .add_systems(First, handle_mouse_input);
 }
 
-#[derive(Resource, Getters)]
+#[derive(Resource, Getters, Default)]
 pub struct IndirectInputCursor {
     position: Vec2,
     do_action: Option<()>,
     do_select: Option<()>,
+    pub on_collider: bool,
 }
 
 fn handle_mouse_position(

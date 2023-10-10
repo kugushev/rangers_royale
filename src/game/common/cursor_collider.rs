@@ -29,7 +29,9 @@ impl CursorCollider {
     }
 }
 
-fn hover_test(mut query: Query<(&mut CursorCollider, &GlobalTransform)>, cursor: Res<IndirectInputCursor>) {
+fn hover_test(mut query: Query<(&mut CursorCollider, &GlobalTransform)>, mut cursor: ResMut<IndirectInputCursor>) {
+    cursor.on_collider = false;
+
     for (mut collider, transform) in &mut query {
         let translation = transform.translation();
         let left = translation.x + collider.shift.x - (collider.size.x / 2.);
@@ -39,6 +41,9 @@ fn hover_test(mut query: Query<(&mut CursorCollider, &GlobalTransform)>, cursor:
 
         let Vec2 { x, y } = *cursor.position();
         collider.hovered = x >= left && x <= right && y >= top && y <= bottom;
+        if collider.hovered {
+            cursor.on_collider = true;
+        }
     }
 }
 

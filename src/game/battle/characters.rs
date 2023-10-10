@@ -19,6 +19,7 @@ use crate::game::battle::characters::selection_mark::build_selection_mark;
 use crate::game::common::cursor_collider::CursorCollider;
 use crate::game::common::moving::MoveCommand;
 use crate::game::common::obstacle::Obstacle;
+use crate::game::registry::CHARACTER_RADIUS;
 
 pub(super) fn build_characters(app: &mut App) {
     build_position_tracking(app);
@@ -37,7 +38,7 @@ pub struct CharacterBundle {
     animations: CharacterAnimationBundle,
     move_command: MoveCommand,
     cursor_collider: CursorCollider,
-    obstacle: Obstacle
+    obstacle: Obstacle,
 }
 
 impl CharacterBundle {
@@ -45,10 +46,10 @@ impl CharacterBundle {
         Self {
             animations: CharacterAnimationBundle::new(position, paths, asset_server, texture_atlases),
             cursor_collider: CursorCollider::new(Vec2::new(60., 100.), Vec2::new(0., 40.)),
-            obstacle: Obstacle::new(30.),
+            obstacle: Obstacle::new(CHARACTER_RADIUS),
             character: default(),
             position_tracker: default(),
-            move_command: default()
+            move_command: default(),
         }
     }
 }

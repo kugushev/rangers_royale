@@ -4,10 +4,12 @@ use crate::game::battle::characters::CharacterBundle;
 use crate::game::battle::characters::character_animations_paths::{FEM_CANDY, FEM_RED, FEM_ROSE};
 use crate::game::battle::characters::controller_direct::ControllerDirect;
 use crate::game::battle::characters::controller_indirect::{ControllerIndirect, Directive};
+use crate::game::battle::characters::non_player_characters::NonPlayerCharacter;
 use crate::game::battle::characters::selection_mark::SelectionMarkBundle;
 use crate::game::common::cursor_collider::CursorCollider;
 use crate::game::input::indirect_input::IndirectInputCursor;
 use crate::game::game_mode::GameMode;
+use crate::game::registry::AttackRange;
 
 pub(super) fn build_player_characters(app: &mut App) {
     app.add_systems(OnEnter(GameMode::Battle), spawn_player_characters)
@@ -16,13 +18,13 @@ pub(super) fn build_player_characters(app: &mut App) {
 }
 
 #[derive(Component)]
-pub struct PlayerCharacter;
+pub struct PlayerCharacter(AttackRange);
 
 fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
     let mut do_spawn = |position, paths| {
         commands.spawn((
             CharacterBundle::new(position, paths, &asset_server, &mut texture_atlases),
-            PlayerCharacter,
+            PlayerCharacter(AttackRange::Regular),
             ControllerDirect::default(),
             ControllerIndirect::default()
         )).with_children(|parent| {
@@ -50,18 +52,33 @@ fn handle_indirect_selection_input(mut query: Query<(&CursorCollider, &mut Contr
     }
 }
 
-fn handle_indirect_action_input(mut query: Query<(&mut ControllerIndirect, &ControllerDirect), With<PlayerCharacter>>, cursor: Res<IndirectInputCursor>) {
+fn handle_indirect_action_input(mut player_q: Query<(&mut ControllerIndirect, &ControllerDirect, &PlayerCharacter)>,
+                                npc_q: Query<(&CursorCollider, Entity), With<NonPlayerCharacter>>,
+                                cursor: Res<IndirectInputCursor>) {
     if cursor.do_action().is_none() {
         return;
     }
 
     let target = *cursor.position();
 
-    for (mut indirect, direct) in &mut query {
+    let mut npc_under_action = None;
+    for (collider, entity) in &npc_q {
+        if *collider.hovered() {
+            npc_under_action = Some(entity);
+            // let's avoid "multi-command per click"
+            break;
+        }
+    }
+    
+    for (mut indirect, direct, player_character) in &mut player_q {
         if direct.active() || !indirect.selected {
             continue;
         }
 
-        indirect.set_directive(Directive::MoveTo(target));
+        if let Some(npc) = npc_under_action {
+            indirect.set_directive(Directive::Attack(npc, player_character.0))
+        } else if !cursor.on_collider {
+            indirect.set_directive(Directive::MoveTo(target))
+        }
     }
 }

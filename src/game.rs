@@ -11,6 +11,7 @@ pub mod utils;
 mod game_mode;
 mod main_menu;
 pub mod input;
+pub mod registry;
 
 pub struct GamePlugin;
 
