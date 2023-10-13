@@ -2868,6 +2868,7 @@ dependencies = [
  "bevy_ecs_tilemap",
  "derive-getters",
  "once_cell",
+ "serde",
 ]
 
 [[package]]

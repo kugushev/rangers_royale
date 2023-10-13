@@ -78,7 +78,7 @@ fn handle_indirect_action_input(mut player_q: Query<(&mut ControllerIndirect, &C
         if let Some(npc) = npc_under_action {
             indirect.set_directive(Directive::Attack(npc, player_character.0))
         } else if !cursor.on_collider {
-            indirect.set_directive(Directive::MoveTo(target))
+            indirect.set_directive(Directive::MoveTo(target, false))
         }
     }
 }
