@@ -1,5 +1,5 @@
 mod player_characters;
-mod character_animation;
+pub mod character_animation;
 mod position_tracker;
 mod character_animations_paths;
 mod selection_mark;
@@ -16,8 +16,9 @@ use crate::game::battle::characters::non_player_characters::build_non_player_cha
 use crate::game::battle::characters::player_characters::build_player_characters;
 use crate::game::battle::characters::position_tracker::{build_position_tracking, PositionTracker};
 use crate::game::battle::characters::selection_mark::build_selection_mark;
+use crate::game::battle::commands::attack_command::AttackCommand;
+use crate::game::battle::commands::move_command::MoveCommand;
 use crate::game::common::cursor_collider::CursorCollider;
-use crate::game::common::moving::MoveCommand;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::registry::CHARACTER_RADIUS;
 
@@ -31,12 +32,16 @@ pub(super) fn build_characters(app: &mut App) {
     build_controller_direct(app);
 }
 
+#[derive(Component, Default)]
+pub struct Character;
+
 #[derive(Bundle)]
 pub struct CharacterBundle {
     character: Character,
     position_tracker: PositionTracker,
     animations: CharacterAnimationBundle,
     move_command: MoveCommand,
+    attack_command: AttackCommand,
     cursor_collider: CursorCollider,
     obstacle: Obstacle,
 }
@@ -50,9 +55,7 @@ impl CharacterBundle {
             character: default(),
             position_tracker: default(),
             move_command: default(),
+            attack_command: default()
         }
     }
 }
-
-#[derive(Component, Default)]
-pub struct Character;

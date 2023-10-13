@@ -1,15 +1,18 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::build_characters;
+use crate::game::battle::commands::build_commands;
 use crate::game::battle::world::build_world;
 use crate::game::game_mode::GameMode;
 
 pub mod world;
-mod characters;
+pub mod characters;
+pub mod commands;
 
 pub(super) fn build_battle(app: &mut App) {
     app.add_systems(OnExit(GameMode::Battle), cleanup);
     build_world(app);
     build_characters(app);
+    build_commands(app);
 }
 
 #[derive(Component)]

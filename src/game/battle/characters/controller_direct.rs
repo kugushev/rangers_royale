@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
-use crate::game::common::moving::MoveCommand;
+use crate::game::battle::commands::move_command::MoveCommand;
 use crate::game::input::direct_inputs::DirectInputs;
 use crate::game::utils::Vec3Ex;
 

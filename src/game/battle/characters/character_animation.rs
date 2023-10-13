@@ -1,13 +1,15 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
 use crate::game::battle::characters::Character;
-use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIMATIONS_FPS, CharacterAnimationsPaths};
+use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIMATIONS_DURATION, CHARACTER_ANIMATIONS_FPS, CharacterAnimationsPaths};
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
-use crate::game::common::animation::AnimationBundle;
+use crate::game::common::animation::{AnimationBundle, AnimationIndices, AnimationTimer};
 use crate::game::common::layer2d::Layer2d;
 
 pub(super) fn build_character_animation(app: &mut App) {
-    app.add_systems(Update, toggle_animation_texture_atlas);
+    app
+        .add_systems(Update, toggle_texture_atlas_for_movement)
+        .add_systems(Update, toggle_texture_atlas_for_one_shot);
 }
 
 
@@ -15,7 +17,7 @@ pub(super) fn build_character_animation(app: &mut App) {
 pub(super) struct CharacterAnimationBundle {
     animation_bundle: AnimationBundle,
     handles: CharacterAnimationHandles,
-    current_state: AnimationState,
+    controller: AnimationController,
 }
 
 impl CharacterAnimationBundle {
@@ -23,24 +25,62 @@ impl CharacterAnimationBundle {
                asset_server: &AssetServer, texture_atlases: &mut Assets<TextureAtlas>) -> Self {
         let handles = CharacterAnimationHandles::new(asset_server, texture_atlases, paths);
         Self {
-            animation_bundle: AnimationBundle::new(position, Layer2d::Character, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
+            animation_bundle: AnimationBundle::new(position, Layer2d::Character, CHARACTER_ANIMATIONS_DURATION, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
             handles,
-            current_state: AnimationState {
+            controller: AnimationController {
                 direction: CharacterDirection::Down,
                 speed: MoveSpeed::Idle,
+                one_shot: None,
             },
         }
     }
 }
 
 #[derive(Component)]
-struct AnimationState {
+pub struct AnimationController {
     direction: CharacterDirection,
     speed: MoveSpeed,
+    one_shot: Option<OneShot>,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 enum MoveSpeed { Idle, _Walk, Run }
+
+struct OneShot {
+    animation: OneShotAnimation,
+    elapsed: Timer,
+    launched: bool,
+    suspend: bool
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum OneShotAnimation { Swing }
+
+impl OneShot {
+    pub fn get_frames(&self) -> usize {
+        match self.animation {
+            OneShotAnimation::Swing => 60,
+        }
+    }
+}
+
+impl AnimationController {
+    pub fn request_one_shot(&mut self, animation: OneShotAnimation, seconds: f32) {
+        self.one_shot = Some(OneShot {
+            animation,
+            elapsed: Timer::from_seconds(seconds, TimerMode::Once),
+            launched: false,
+            suspend: false
+        });
+    }
+
+    pub fn suspend_attack(&mut self) {
+        if let Some(ref mut x @ OneShot { animation: OneShotAnimation::Swing, .. }) = self.one_shot {
+            x.suspend = true;
+        }
+    }
+}
+
 
 #[derive(Component, Getters)]
 struct CharacterAnimationHandles {
@@ -113,8 +153,12 @@ fn load_spritesheet(asset_server: &AssetServer, texture_atlases: &mut Assets<Tex
     texture_atlases.add(texture_atlas)
 }
 
-fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &mut TextureAtlasSprite, &PositionTracker, &CharacterAnimationHandles, &mut AnimationState), With<Character>>) {
-    for (mut texture_atlas, mut sprite, position_tracker, handles, mut current_state) in &mut query {
+fn toggle_texture_atlas_for_movement(mut query: Query<(&mut Handle<TextureAtlas>, &mut TextureAtlasSprite, &PositionTracker, &CharacterAnimationHandles, &mut AnimationController), With<Character>>) {
+    for (mut texture_atlas, mut sprite, position_tracker, handles, mut controller) in &mut query {
+        if controller.one_shot.is_some() {
+            continue;
+        }
+
         let direction = *position_tracker.direction();
 
         let speed = match *position_tracker.speed() {
@@ -126,7 +170,7 @@ fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &
             }
         };
 
-        let changed = current_state.direction != direction || current_state.speed != speed;
+        let changed = controller.direction != direction || controller.speed != speed;
 
         if !changed {
             continue;
@@ -150,8 +194,65 @@ fn toggle_animation_texture_atlas(mut query: Query<(&mut Handle<TextureAtlas>, &
         };
         sprite.flip_x = direction == CharacterDirection::Left;
 
-        current_state.direction = direction;
-        current_state.speed = speed;
+        controller.direction = direction;
+        controller.speed = speed;
     }
 }
 
+fn toggle_texture_atlas_for_one_shot(
+    mut query: Query<(
+        &mut Handle<TextureAtlas>,
+        &mut TextureAtlasSprite,
+        &PositionTracker,
+        &CharacterAnimationHandles,
+        &mut AnimationController,
+        &mut AnimationIndices,
+        &mut AnimationTimer), With<Character>>, time: Res<Time>) {
+    for (mut texture_atlas, mut sprite, position_tracker, handles, mut controller, mut indices, mut timer) in &mut query {
+        let one_shot = match &mut controller.one_shot {
+            Some(x) => x,
+            None => { continue; }
+        };
+
+        let mut configure_animation = |duration: f32, frames| {
+            let fps = duration / frames as f32;
+            indices.setup(frames);
+            timer.reset(fps);
+        };
+
+        let direction = *position_tracker.direction();
+
+        if !one_shot.launched {
+            *texture_atlas = match (direction, one_shot.animation) {
+                (CharacterDirection::Up, OneShotAnimation::Swing) => handles.swing_up.clone_weak(),
+                (CharacterDirection::Down, OneShotAnimation::Swing) => handles.swing_down.clone_weak(),
+                (CharacterDirection::Left, OneShotAnimation::Swing) => handles.swing_side.clone_weak(),
+                (CharacterDirection::Right, OneShotAnimation::Swing) => handles.swing_side.clone_weak(),
+            };
+            sprite.flip_x = direction == CharacterDirection::Left;
+            sprite.index = 0;
+
+            configure_animation(one_shot.elapsed.duration().as_secs_f32(), one_shot.get_frames());
+
+            one_shot.launched = true;
+            continue;
+        }
+
+        one_shot.elapsed.tick(time.delta());
+
+        if one_shot.elapsed.finished() || one_shot.suspend {
+            *texture_atlas = match direction {
+                CharacterDirection::Up => handles.idle_up.clone_weak(),
+                CharacterDirection::Down => handles.idle_down.clone_weak(),
+                CharacterDirection::Left => handles.idle_side.clone_weak(),
+                CharacterDirection::Right => handles.idle_side.clone_weak(),
+            };
+            sprite.flip_x = direction == CharacterDirection::Left;
+            sprite.index = 0;
+
+            configure_animation(CHARACTER_ANIMATIONS_DURATION, CHARACTER_ANIMATIONS_FPS);
+
+            controller.one_shot = None;
+        }
+    }
+}

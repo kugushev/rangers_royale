@@ -4,7 +4,7 @@ use derive_getters::Getters;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::{find_circle_to_circle_intersections, Vec3Ex};
 
-pub(super) fn build_moving(app: &mut App) {
+pub(in crate::game) fn build_move_command(app: &mut App) {
     app.add_systems(Update, handle_move);
 }
 
@@ -19,6 +19,10 @@ pub struct MoveCommand {
 impl MoveCommand {
     pub fn set_target(&mut self, target: Vec2) {
         self.target = Some(target);
+    }
+
+    pub fn clear(&mut self) {
+        self.target = None;
     }
 }
 

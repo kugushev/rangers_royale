@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 
 pub const CHARACTER_ANIMATIONS_FPS: usize = 60;
+pub const CHARACTER_ANIMATIONS_DURATION: f32 = 1.;
 
 pub static FEM_RED: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_red"));
 pub static FEM_KNIFE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_knife"));

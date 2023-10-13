@@ -33,9 +33,9 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
     };
     const SHIFT: f32 = 100.;
     do_spawn(Vec2::new(0., SHIFT), &FEM_RED);
-    do_spawn(Vec2::new(0., -SHIFT), &FEM_CANDY);
+    // do_spawn(Vec2::new(0., -SHIFT), &FEM_CANDY);
     // do_spawn(Vec2::new(SHIFT, 0.), &FEM_KNIFE);
-    do_spawn(Vec2::new(-SHIFT, 0.), &FEM_ROSE);
+    // do_spawn(Vec2::new(-SHIFT, 0.), &FEM_ROSE);
 }
 
 fn handle_indirect_selection_input(mut query: Query<(&CursorCollider, &mut ControllerIndirect, &ControllerDirect), With<PlayerCharacter>>, cursor: Res<IndirectInputCursor>) {
