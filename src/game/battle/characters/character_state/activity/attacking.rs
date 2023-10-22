@@ -1,38 +1,20 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::character_animation::{AnimationController, OneShotAnimation};
+use crate::game::battle::characters::character_state::activity::Activity;
+use crate::game::battle::characters::character_state::CharacterState;
 
-pub(super) fn build_attack_command(app: &mut App) {
+pub(super) fn build_attacking(app: &mut App) {
     app.add_systems(Update, handle_attack);
 }
 
-
-#[derive(Component, Default)]
-pub struct AttackCommand {
-    do_attack: Option<AttackState>,
-}
-
-impl AttackCommand {
-    pub fn swing(&mut self) {
-        self.do_attack = Some(AttackState::Requested(AttackType::Swing));
-    }
-
-    pub fn is_attacking(&self) -> bool {
-        self.do_attack.is_some()
-    }
-
-    pub fn suspend(&mut self) {
-        self.do_attack = None;
-    }
-}
-
-enum AttackState {
+pub enum AttackState {
     Requested(AttackType),
     Charging(Timer),
     ApplyingDamage,
     Releasing(Timer),
 }
 
-enum AttackType { Swing }
+pub enum AttackType { Swing }
 
 const ATTACK_ALL_FRAMES: usize = 60;
 const ATTACK_CHARGE_FRAMES: usize = 12;
@@ -41,11 +23,16 @@ const ATTACK_RELEASE_FRAMES: usize = ATTACK_ALL_FRAMES - ATTACK_CHARGE_FRAMES - 
 
 const ATTACK_TIME_SECONDS: f32 = 1.0;
 
-fn handle_attack(mut query: Query<(&mut AttackCommand, &mut AnimationController)>, time: Res<Time>) {
-    for (mut command, mut animation_controller) in query.iter_mut() {
-        let attack_state = match &mut command.do_attack {
-            Some(s) => s,
-            None => {
+fn handle_attack(mut query: Query<(&mut CharacterState, &mut AnimationController)>, time: Res<Time>) {
+    for (mut state, mut animation_controller) in query.iter_mut() {
+        if !state.is_active() {
+            animation_controller.suspend_attack();
+            continue;
+        }
+
+        let attack_state = match state.get_activity_mut() {
+            Activity::Attacking(s) => s,
+            _ => {
                 animation_controller.suspend_attack();
                 continue;
             }
@@ -73,7 +60,7 @@ fn handle_attack(mut query: Query<(&mut AttackCommand, &mut AnimationController)
             AttackState::Releasing(t) => {
                 t.tick(time.delta());
                 if t.finished() {
-                    command.do_attack = None;
+                    state.set_idle();
                 }
             }
         }

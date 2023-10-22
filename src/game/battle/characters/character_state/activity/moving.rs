@@ -1,47 +1,29 @@
 use std::collections::VecDeque;
 use bevy::prelude::*;
-use derive_getters::Getters;
+use crate::game::battle::characters::character_state::activity::Activity;
+use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::{find_circle_to_circle_intersections, Vec3Ex};
 
-pub(in crate::game) fn build_move_command(app: &mut App) {
+pub(super) fn build_moving(app: &mut App)
+{
     app.add_systems(Update, handle_move);
 }
 
 const DEFAULT_SPEED: f32 = 100.0;
 
-#[derive(Component, Getters)]
-pub struct MoveCommand {
-    target: Option<Vec2>,
-    speed: f32
-}
 
-impl MoveCommand {
-    pub fn set_target(&mut self, target: Vec2) {
-        self.target = Some(target);
-    }
-
-    pub fn clear(&mut self) {
-        self.target = None;
-    }
-}
-
-impl Default for MoveCommand {
-    fn default() -> Self {
-        Self {
-            target: None,
-            speed: DEFAULT_SPEED,
-        }
-    }
-}
-
-fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
+fn handle_move(mut query: Query<(&mut CharacterState, &mut Transform, &Obstacle, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
 
     // todo: refactor
-    for (mut command, mut transform, obstacle, entity) in &mut query {
-        let mut target = match command.target {
-            None => { continue; }
-            Some(t) => t
+    for (mut state, mut transform, obstacle, entity) in &mut query {
+        if !state.is_active() {
+            continue;
+        }
+
+        let mut target = match state.get_activity() {
+            Activity::Moving(t) => *t,
+            _ => { continue; }
         };
 
         let current = transform.translation.to_vec2();
@@ -51,11 +33,11 @@ fn handle_move(mut query: Query<(&mut MoveCommand, &mut Transform, &Obstacle, En
 
         target = move_target_closer_if_not_reachable(target, &obstacles_q, entity, current, subject_radius);
 
-        let move_length = time.delta_seconds() * command.speed;
+        let move_length = time.delta_seconds() * DEFAULT_SPEED;
         let delta = target - current;
         if delta.length() <= move_length {
             transform.translation = vec2_to_vec3(target, z);
-            command.target = None;
+            state.set_idle();
         } else {
             let direction = delta.normalize() * move_length;
             let mut new_position = current + direction;

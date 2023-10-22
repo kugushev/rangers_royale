@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
-use crate::game::battle::commands::move_command::MoveCommand;
+use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::input::direct_inputs::DirectInputs;
 use crate::game::utils::Vec3Ex;
 
@@ -48,8 +48,8 @@ fn toggle_direct_devices(mut query: Query<&mut ControllerDirect>, direct_inputs:
     }
 }
 
-fn handle_direct_inputs(mut query: Query<(&mut MoveCommand, &ControllerDirect, &Transform)>, direct_inputs: Res<DirectInputs>) {
-    for (mut move_command, controller, transform) in &mut query {
+fn handle_direct_inputs(mut query: Query<(&mut CharacterState, &ControllerDirect, &Transform)>, direct_inputs: Res<DirectInputs>) {
+    for (mut character_state, controller, transform) in &mut query {
         let device_id = if let Some(x) = controller.input_device_id { x } else { continue; };
         let input = if let Some(x) = direct_inputs.get(device_id) { x } else { continue; };
 
@@ -57,6 +57,6 @@ fn handle_direct_inputs(mut query: Query<(&mut MoveCommand, &ControllerDirect, &
         let mut position = transform.translation.to_vec2();
         position.x += *input.horizontal() * STEP_LENGTH;
         position.y += *input.vertical() * STEP_LENGTH;
-        move_command.set_target(position);
+        character_state.set_moving(position);
     }
 }
