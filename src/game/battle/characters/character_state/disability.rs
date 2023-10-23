@@ -12,7 +12,7 @@ pub enum Disability {
     Stun(Timer, AutoResetGate),
 }
 
-pub const STUN_TIME: f32 = 0.5;
+pub const STUN_TIME: f32 = 0.25;
 
 fn handle_stun(mut query: Query<(&mut CharacterState, &mut AnimationController)>, time: Res<Time>) {
     for (mut state, mut animation_controller) in &mut query {

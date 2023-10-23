@@ -27,7 +27,7 @@ const ATTACK_CHARGE_FRAMES: usize = 12;
 const ATTACK_CUTOFF_FRAMES: usize = 2;
 const ATTACK_RELEASE_FRAMES: usize = ATTACK_ALL_FRAMES - ATTACK_CHARGE_FRAMES - ATTACK_CUTOFF_FRAMES;
 
-const ATTACK_TIME_SECONDS: f32 = 1.0;
+const ATTACK_TIME_SECONDS: f32 = 0.5;
 
 fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms), (With<PlayerCharacter>, Without<NonPlayerCharacter>)>,
                         mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut CharacterState), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
