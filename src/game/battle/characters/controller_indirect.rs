@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use derive_getters::Getters;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
+use crate::game::battle::characters::position_tracker::PositionTracker;
 use crate::game::registry::AttackRange;
 use crate::game::utils::Vec3Ex;
 
@@ -47,9 +48,9 @@ fn handle_move_to(mut active_q: Query<(&mut CharacterState, &mut ControllerIndir
     }
 }
 
-fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, &GlobalTransform)>,
+fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, &GlobalTransform, &mut PositionTracker)>,
                  mut passive_q: Query<&GlobalTransform>) {
-    for (mut character_state, mut controller, transform) in &mut active_q {
+    for (mut character_state, mut controller, transform, mut position_tracker) in &mut active_q {
         handle(&mut controller, |d| {
             if let Directive::Attack(target_entity, range) = d {
                 let target = match passive_q.get(*target_entity) {
@@ -67,6 +68,7 @@ fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndire
                     character_state.set_moving(target_position);
                 } else {
                     if !character_state.is_attacking() {
+                        position_tracker.look_at(target_position, current_position);
                         character_state.set_attacking();
                     }
                 }

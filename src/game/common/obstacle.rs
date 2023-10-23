@@ -9,7 +9,6 @@ pub(super) fn build_obstacle(app: &mut App) {
     }
 }
 
-
 #[derive(Component, Getters)]
 pub struct Obstacle {
     radius: f32,

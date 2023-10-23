@@ -2,6 +2,8 @@ use serde::Deserialize;
 
 pub const CHARACTER_RADIUS: f32 = 30.;
 
+pub const SWING_RADIUS: f32 = 60.;
+
 #[derive(Copy, Clone, Debug)]
 pub enum AttackRange {
     Hand,

@@ -1,10 +1,16 @@
 use bevy::prelude::*;
+use crate::game::battle::characters::arms::Arms;
 use crate::game::battle::characters::character_animation::{AnimationController, OneShotAnimation};
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
+use crate::game::battle::characters::non_player_characters::NonPlayerCharacter;
+use crate::game::battle::characters::player_characters::PlayerCharacter;
+use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
+use crate::game::common::obstacle::Obstacle;
+use crate::game::utils::Vec3Ex;
 
 pub(super) fn build_attacking(app: &mut App) {
-    app.add_systems(Update, handle_attack);
+    app.add_systems(Update, handle_player_attack);
 }
 
 pub enum AttackState {
@@ -23,8 +29,10 @@ const ATTACK_RELEASE_FRAMES: usize = ATTACK_ALL_FRAMES - ATTACK_CHARGE_FRAMES - 
 
 const ATTACK_TIME_SECONDS: f32 = 1.0;
 
-fn handle_attack(mut query: Query<(&mut CharacterState, &mut AnimationController)>, time: Res<Time>) {
-    for (mut state, mut animation_controller) in query.iter_mut() {
+fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms), (With<PlayerCharacter>, Without<NonPlayerCharacter>)>,
+                        mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut CharacterState), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
+                        time: Res<Time>) {
+    for (mut state, mut animation_controller, transform, position_tracker, arms) in query.iter_mut() {
         if !state.is_active() {
             animation_controller.suspend_attack();
             continue;
@@ -54,7 +62,7 @@ fn handle_attack(mut query: Query<(&mut CharacterState, &mut AnimationController
                 }
             }
             AttackState::ApplyingDamage => {
-                // todo: apply damage to all objects in range
+                apply_damage(&mut targets_q, transform.translation().to_vec2(), &position_tracker, arms);
                 *attack_state = AttackState::Releasing(get_attack_time(ATTACK_RELEASE_FRAMES));
             }
             AttackState::Releasing(t) => {
@@ -62,6 +70,27 @@ fn handle_attack(mut query: Query<(&mut CharacterState, &mut AnimationController
                 if t.finished() {
                     state.set_idle();
                 }
+            }
+        }
+    }
+}
+
+fn apply_damage(targets_q: &mut Query<(&GlobalTransform, &Obstacle, &mut CharacterState), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
+                character_position: Vec2, position_tracker: &PositionTracker, arms: &Arms) {
+    for (transform, obstacle, mut state) in targets_q {
+        let target_position = transform.translation().to_vec2();
+        let distance = character_position.distance(target_position);
+        let attack_range = *arms.range();
+        if distance <= attack_range + *obstacle.radius() {
+            let target_in_front = match position_tracker.direction() {
+                CharacterDirection::Up => target_position.y > character_position.y,
+                CharacterDirection::Down => target_position.y < character_position.y,
+                CharacterDirection::Left => target_position.x < character_position.x,
+                CharacterDirection::Right => target_position.x > character_position.x,
+            };
+            if target_in_front {
+                println!("Damage");
+                state.set_stunned();
             }
         }
     }

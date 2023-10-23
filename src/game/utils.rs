@@ -64,3 +64,14 @@ pub fn find_circle_to_circle_intersections(c0: Vec2, r0: f32, c1: Vec2, r1: f32)
 
     return result;
 }
+
+#[derive(Default)]
+pub struct AutoResetGate(bool);
+
+impl AutoResetGate {
+    pub fn enter(&mut self) -> bool {
+        let previous = self.0;
+        self.0 = true;
+        previous
+    }
+}

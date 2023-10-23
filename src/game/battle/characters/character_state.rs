@@ -4,7 +4,7 @@ pub mod disability;
 use bevy::prelude::*;
 use crate::game::battle::characters::character_state::activity::{Activity, build_activity};
 use crate::game::battle::characters::character_state::activity::attacking::{AttackState, AttackType};
-use crate::game::battle::characters::character_state::disability::{build_disability, Disability};
+use crate::game::battle::characters::character_state::disability::{build_disability, Disability, STUN_TIME};
 
 pub(super) fn build_character_state(app: &mut App) {
     build_activity(app);
@@ -47,5 +47,9 @@ impl CharacterState {
 
     pub fn set_attacking(&mut self) {
         self.activity = Activity::Attacking(AttackState::Requested(AttackType::Swing));
+    }
+
+    pub fn set_stunned(&mut self) {
+        self.disability = Some(Disability::Stun(Timer::from_seconds(STUN_TIME, TimerMode::Once), default()));
     }
 }
