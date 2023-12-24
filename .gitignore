@@ -1,6 +1,8 @@
 # Rust
 /target
 
+**/.DS_Store
+
 # Unity Assets
 **/Assets/**
 !**/Assets/AK/
