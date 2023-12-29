@@ -80,9 +80,14 @@ fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationCon
 fn apply_damage(targets_q: &mut Query<(&GlobalTransform, &Obstacle, &mut CharacterState, &mut HitPoints), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
                 character_position: Vec2, position_tracker: &PositionTracker, arms: &Arms, damage: &Damage) {
     for (transform, obstacle, mut state, mut hit_points) in targets_q {
+        if state.is_dying() {
+            continue;
+        }
+
         let target_position = transform.translation().to_vec2();
         let distance = character_position.distance(target_position);
         let attack_range = *arms.range();
+
         if distance <= attack_range + *obstacle.radius() {
             let target_in_front = match position_tracker.direction() {
                 CharacterDirection::Up => target_position.y > character_position.y,
@@ -92,7 +97,13 @@ fn apply_damage(targets_q: &mut Query<(&GlobalTransform, &Obstacle, &mut Charact
             };
             if target_in_front {
                 hit_points.suffer(damage);
-                state.set_stunned();
+
+                if hit_points.is_dead() {
+                    state.set_died();
+                }
+                else {
+                    state.set_stunned();
+                }
             }
         }
     }

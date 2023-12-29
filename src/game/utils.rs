@@ -72,6 +72,6 @@ impl AutoResetGate {
     pub fn enter(&mut self) -> bool {
         let previous = self.0;
         self.0 = true;
-        previous
+        !previous
     }
 }

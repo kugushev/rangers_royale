@@ -20,7 +20,11 @@ impl HitPoints {
     }
 
     pub fn is_dead(&self) -> bool {
-        self.current > 0.0
+        if self.max == f32::default() {
+            return false;
+        }
+
+        self.current <= 0.0
     }
 }
 

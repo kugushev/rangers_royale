@@ -54,13 +54,14 @@ struct OneShot {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub enum OneShotAnimation { Swing, Stun }
+pub enum OneShotAnimation { Swing, Stun, Death }
 
 impl OneShot {
     pub fn get_frames(&self) -> usize {
         match self.animation {
             OneShotAnimation::Swing => 60,
-            OneShotAnimation::Stun => 30
+            OneShotAnimation::Stun => 30,
+            OneShotAnimation::Death => 60
         }
     }
 }
@@ -233,6 +234,10 @@ fn toggle_texture_atlas_for_one_shot(
                 (CharacterDirection::Down, OneShotAnimation::Stun) => handles.hurt_down.clone_weak(),
                 (CharacterDirection::Left, OneShotAnimation::Stun) => handles.hurt_side.clone_weak(),
                 (CharacterDirection::Right, OneShotAnimation::Stun) => handles.hurt_side.clone_weak(),
+                (CharacterDirection::Up, OneShotAnimation::Death) => handles.die_up.clone_weak(),
+                (CharacterDirection::Down, OneShotAnimation::Death) => handles.die_down.clone_weak(),
+                (CharacterDirection::Left, OneShotAnimation::Death) => handles.die_side.clone_weak(),
+                (CharacterDirection::Right, OneShotAnimation::Death) => handles.die_side.clone_weak(),
             };
             sprite.flip_x = direction == CharacterDirection::Left;
             sprite.index = 0;
