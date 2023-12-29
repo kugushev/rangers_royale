@@ -49,7 +49,7 @@ fn handle_move_to(mut active_q: Query<(&mut CharacterState, &mut ControllerIndir
 }
 
 fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, &GlobalTransform, &mut PositionTracker)>,
-                 mut passive_q: Query<&GlobalTransform>) {
+                 passive_q: Query<&GlobalTransform>) {
     for (mut character_state, mut controller, transform, mut position_tracker) in &mut active_q {
         handle(&mut controller, |d| {
             if let Directive::Attack(target_entity, range) = d {

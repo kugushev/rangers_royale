@@ -1,5 +1,3 @@
-use serde::Deserialize;
-
 pub const CHARACTER_RADIUS: f32 = 30.;
 
 pub const SWING_RADIUS: f32 = 60.;
@@ -19,4 +17,13 @@ impl AttackRange {
             AttackRange::Pole => CHARACTER_RADIUS * 2. * 2.
         }
     }
+}
+
+
+#[derive(Copy, Clone)]
+pub enum CharacterOrigin {
+    Red,
+    Candy,
+    Knife,
+    Rose
 }

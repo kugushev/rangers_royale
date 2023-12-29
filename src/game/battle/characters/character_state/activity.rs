@@ -4,7 +4,6 @@ pub mod attacking;
 use bevy::prelude::*;
 use crate::game::battle::characters::character_state::activity::attacking::{AttackState, build_attacking};
 use crate::game::battle::characters::character_state::activity::moving::build_moving;
-use crate::game::battle::characters::position_tracker::CharacterDirection;
 
 pub(super) fn build_activity(app: &mut App) {
     build_moving(app);

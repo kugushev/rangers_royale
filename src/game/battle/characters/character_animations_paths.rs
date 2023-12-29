@@ -1,12 +1,9 @@
+use std::ops::Deref;
 use once_cell::sync::Lazy;
+use crate::game::registry::CharacterOrigin;
 
 pub const CHARACTER_ANIMATIONS_FPS: usize = 60;
 pub const CHARACTER_ANIMATIONS_DURATION: f32 = 1.;
-
-pub static FEM_RED: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_red"));
-pub static FEM_KNIFE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_knife"));
-pub static FEM_CANDY: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_candy"));
-pub static FEM_ROSE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_rose"));
 
 pub struct CharacterAnimationsPaths {
     pub idle_up: String,
@@ -34,6 +31,22 @@ pub struct CharacterAnimationsPaths {
     pub swing_down: String,
     pub swing_side: String,
 }
+
+impl CharacterAnimationsPaths {
+    pub fn find(origin: CharacterOrigin) -> &'static Self {
+        match origin {
+            CharacterOrigin::Red => FEM_RED.deref(),
+            CharacterOrigin::Candy => FEM_CANDY.deref(),
+            CharacterOrigin::Knife => FEM_KNIFE.deref(),
+            CharacterOrigin::Rose => FEM_ROSE.deref()
+        }
+    }
+}
+
+static FEM_RED: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_red"));
+static FEM_KNIFE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_knife"));
+static FEM_CANDY: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_candy"));
+static FEM_ROSE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_rose"));
 
 fn create(folder: &str) -> CharacterAnimationsPaths {
     CharacterAnimationsPaths {

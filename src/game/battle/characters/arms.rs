@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
 
-pub(super) fn build_arms(app: &mut App) {
+pub(super) fn build_arms(_app: &mut App) {
 
 }
 

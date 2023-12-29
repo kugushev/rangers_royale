@@ -8,6 +8,8 @@ mod controller_indirect;
 mod controller_direct;
 pub mod character_state;
 pub mod arms;
+mod hit_points;
+mod damage;
 
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::{Arms, build_arms};
@@ -16,13 +18,15 @@ use crate::game::battle::characters::character_animations_paths::CharacterAnimat
 use crate::game::battle::characters::character_state::{build_character_state, CharacterState};
 use crate::game::battle::characters::controller_direct::build_controller_direct;
 use crate::game::battle::characters::controller_indirect::build_controller_indirect;
+use crate::game::battle::characters::damage::{build_damage, Damage};
+use crate::game::battle::characters::hit_points::{build_hit_points, HitPoints};
 use crate::game::battle::characters::non_player_characters::build_non_player_characters;
 use crate::game::battle::characters::player_characters::build_player_characters;
 use crate::game::battle::characters::position_tracker::{build_position_tracking, PositionTracker};
 use crate::game::battle::characters::selection_mark::build_selection_mark;
 use crate::game::common::cursor_collider::CursorCollider;
 use crate::game::common::obstacle::Obstacle;
-use crate::game::registry::{CHARACTER_RADIUS, SWING_RADIUS};
+use crate::game::registry::{CHARACTER_RADIUS, CharacterOrigin, SWING_RADIUS};
 
 pub(super) fn build_characters(app: &mut App) {
     build_position_tracking(app);
@@ -34,10 +38,16 @@ pub(super) fn build_characters(app: &mut App) {
     build_controller_direct(app);
     build_character_state(app);
     build_arms(app);
+    build_hit_points(app);
+    build_damage(app);
 }
 
-#[derive(Component, Default)]
-pub struct Character;
+#[derive(Component)]
+pub struct Character(CharacterOrigin);
+
+impl Character {
+    pub fn origin(&self) -> CharacterOrigin { self.0 }
+}
 
 #[derive(Bundle)]
 pub struct CharacterBundle {
@@ -47,19 +57,24 @@ pub struct CharacterBundle {
     character_state: CharacterState,
     cursor_collider: CursorCollider,
     obstacle: Obstacle,
-    arms: Arms
+    arms: Arms,
+    hit_points: HitPoints,
+    damage: Damage,
 }
 
 impl CharacterBundle {
-    pub fn new(position: Vec2, paths: &CharacterAnimationsPaths, asset_server: &Res<AssetServer>, texture_atlases: &mut ResMut<Assets<TextureAtlas>>) -> Self {
+    pub fn new(origin: CharacterOrigin, position: Vec2, asset_server: &Res<AssetServer>, texture_atlases: &mut ResMut<Assets<TextureAtlas>>) -> Self {
+        let paths = CharacterAnimationsPaths::find(origin);
         Self {
+            character: Character(origin),
             animations: CharacterAnimationBundle::new(position, paths, asset_server, texture_atlases),
             cursor_collider: CursorCollider::new(Vec2::new(60., 100.), Vec2::new(0., 40.)),
             obstacle: Obstacle::new(CHARACTER_RADIUS),
-            character: default(),
             position_tracker: default(),
             character_state: default(),
-            arms: Arms::new(SWING_RADIUS)
+            arms: Arms::new(SWING_RADIUS),
+            hit_points: default(),
+            damage: default(),
         }
     }
 }
