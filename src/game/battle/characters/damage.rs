@@ -20,10 +20,11 @@ impl Damage {
 fn setup_damage(mut query: Query<(&mut Damage, &Character)>) {
     for (mut damage, character) in &mut query {
         damage.amount = match character.origin() {
-            CharacterOrigin::Red => 2.0,
-            CharacterOrigin::Candy => 1.5,
+            CharacterOrigin::Red => 1.0,
+            CharacterOrigin::Candy => 1.0,
             CharacterOrigin::Knife => 1.0,
-            CharacterOrigin::Rose => 0.5,
+            CharacterOrigin::Rose => 1.0,
+            CharacterOrigin::Orc => 1.0
         }
     }
 }

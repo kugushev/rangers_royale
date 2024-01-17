@@ -10,6 +10,7 @@ pub mod character_state;
 pub mod arms;
 mod hit_points;
 mod damage;
+mod faction;
 
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::{Arms, build_arms};
@@ -19,6 +20,7 @@ use crate::game::battle::characters::character_state::{build_character_state, Ch
 use crate::game::battle::characters::controller_direct::build_controller_direct;
 use crate::game::battle::characters::controller_indirect::build_controller_indirect;
 use crate::game::battle::characters::damage::{build_damage, Damage};
+use crate::game::battle::characters::faction::Faction;
 use crate::game::battle::characters::hit_points::{build_hit_points, HitPoints};
 use crate::game::battle::characters::non_player_characters::build_non_player_characters;
 use crate::game::battle::characters::player_characters::build_player_characters;
@@ -26,7 +28,7 @@ use crate::game::battle::characters::position_tracker::{build_position_tracking,
 use crate::game::battle::characters::selection_mark::build_selection_mark;
 use crate::game::common::cursor_collider::CursorCollider;
 use crate::game::common::obstacle::Obstacle;
-use crate::game::registry::{CHARACTER_RADIUS, CharacterOrigin, SWING_RADIUS};
+use crate::game::registry::{CHARACTER_RADIUS, CharacterOrigin};
 
 pub(super) fn build_characters(app: &mut App) {
     build_position_tracking(app);
@@ -52,27 +54,27 @@ impl Character {
 #[derive(Bundle)]
 pub struct CharacterBundle {
     character: Character,
+    faction: Faction,
     position_tracker: PositionTracker,
     animations: CharacterAnimationBundle,
     character_state: CharacterState,
     cursor_collider: CursorCollider,
     obstacle: Obstacle,
-    arms: Arms,
     hit_points: HitPoints,
     damage: Damage,
 }
 
 impl CharacterBundle {
-    pub fn new(origin: CharacterOrigin, position: Vec2, asset_server: &Res<AssetServer>, texture_atlases: &mut ResMut<Assets<TextureAtlas>>) -> Self {
+    pub fn new(origin: CharacterOrigin, faction: Faction, position: Vec2, asset_server: &Res<AssetServer>, texture_atlases: &mut ResMut<Assets<TextureAtlas>>) -> Self {
         let paths = CharacterAnimationsPaths::find(origin);
         Self {
             character: Character(origin),
+            faction,
             animations: CharacterAnimationBundle::new(position, paths, asset_server, texture_atlases),
             cursor_collider: CursorCollider::new(Vec2::new(60., 100.), Vec2::new(0., 40.)),
             obstacle: Obstacle::new(CHARACTER_RADIUS),
             position_tracker: default(),
             character_state: default(),
-            arms: Arms::new(SWING_RADIUS),
             hit_points: default(),
             damage: default(),
         }

@@ -4,9 +4,8 @@ use crate::game::battle::characters::character_animation::{AnimationController, 
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::battle::characters::damage::Damage;
+use crate::game::battle::characters::faction::Faction;
 use crate::game::battle::characters::hit_points::HitPoints;
-use crate::game::battle::characters::non_player_characters::NonPlayerCharacter;
-use crate::game::battle::characters::player_characters::PlayerCharacter;
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::Vec3Ex;
@@ -31,10 +30,10 @@ const ATTACK_RELEASE_FRAMES: usize = ATTACK_ALL_FRAMES - ATTACK_CHARGE_FRAMES - 
 
 const ATTACK_TIME_SECONDS: f32 = 0.5;
 
-fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms, &Damage), (With<PlayerCharacter>, Without<NonPlayerCharacter>)>,
-                        mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut CharacterState, &mut HitPoints), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
+fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms, &Damage, &Faction)>,
+                        mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut HitPoints, &Faction)>,
                         time: Res<Time>) {
-    for (mut state, mut animation_controller, transform, position_tracker, arms, damage) in query.iter_mut() {
+    for (mut state, mut animation_controller, transform, position_tracker, arms, damage, faction) in query.iter_mut() {
         if !state.is_active() {
             animation_controller.suspend_attack();
             continue;
@@ -64,7 +63,14 @@ fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationCon
                 }
             }
             AttackState::ApplyingDamage => {
-                apply_damage(&mut targets_q, transform.translation().to_vec2(), &position_tracker, arms, damage);
+                for (target_trans, target_obstacle, target_hitpoints, target_faction) in &mut targets_q {
+                    if !faction.is_rival(target_faction) {
+                        continue
+                    }
+
+                    apply_damage(target_trans, target_obstacle, target_hitpoints, transform.translation().to_vec2(), &position_tracker, arms, damage);
+                }
+
                 *attack_state = AttackState::Releasing(get_attack_time(ATTACK_RELEASE_FRAMES));
             }
             AttackState::Releasing(t) => {
@@ -77,34 +83,25 @@ fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationCon
     }
 }
 
-fn apply_damage(targets_q: &mut Query<(&GlobalTransform, &Obstacle, &mut CharacterState, &mut HitPoints), (With<NonPlayerCharacter>, Without<PlayerCharacter>)>,
+fn apply_damage(transform: &GlobalTransform,obstacle:  &Obstacle, mut hit_points: Mut<HitPoints>,
                 character_position: Vec2, position_tracker: &PositionTracker, arms: &Arms, damage: &Damage) {
-    for (transform, obstacle, mut state, mut hit_points) in targets_q {
-        if state.is_dying() {
-            continue;
-        }
+    if hit_points.is_dead() {
+        return;
+    }
 
-        let target_position = transform.translation().to_vec2();
-        let distance = character_position.distance(target_position);
-        let attack_range = *arms.range();
+    let target_position = transform.translation().to_vec2();
+    let distance = character_position.distance(target_position);
+    let attack_range = arms.attack_distance();
 
-        if distance <= attack_range + *obstacle.radius() {
-            let target_in_front = match position_tracker.direction() {
-                CharacterDirection::Up => target_position.y > character_position.y,
-                CharacterDirection::Down => target_position.y < character_position.y,
-                CharacterDirection::Left => target_position.x < character_position.x,
-                CharacterDirection::Right => target_position.x > character_position.x,
-            };
-            if target_in_front {
-                hit_points.suffer(damage);
-
-                if hit_points.is_dead() {
-                    state.set_died();
-                }
-                else {
-                    state.set_stunned();
-                }
-            }
+    if distance <= attack_range + *obstacle.radius() {
+        let target_in_front = match position_tracker.direction() {
+            CharacterDirection::Up => target_position.y > character_position.y,
+            CharacterDirection::Down => target_position.y < character_position.y,
+            CharacterDirection::Left => target_position.x < character_position.x,
+            CharacterDirection::Right => target_position.x > character_position.x,
+        };
+        if target_in_front {
+            hit_points.suffer(damage);
         }
     }
 }

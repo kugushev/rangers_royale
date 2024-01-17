@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use derive_getters::Getters;
+use crate::game::battle::characters::arms::Arms;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::battle::characters::position_tracker::PositionTracker;
-use crate::game::registry::AttackRange;
 use crate::game::utils::Vec3Ex;
 
 pub(super) fn build_controller_indirect(app: &mut App) {
@@ -20,7 +20,7 @@ pub struct ControllerIndirect {
 #[derive(Debug)]
 pub enum Directive {
     MoveTo(Vec2, bool),
-    Attack(Entity, AttackRange),
+    Attack(Entity, Arms),
 }
 
 impl ControllerIndirect {
@@ -52,7 +52,7 @@ fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndire
                  passive_q: Query<&GlobalTransform>) {
     for (mut character_state, mut controller, transform, mut position_tracker) in &mut active_q {
         handle(&mut controller, |d| {
-            if let Directive::Attack(target_entity, range) = d {
+            if let Directive::Attack(target_entity, arms) = d {
                 let target = match passive_q.get(*target_entity) {
                     Ok(t) => t,
                     _ => { return true; }
@@ -61,10 +61,11 @@ fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndire
                 let current_position = transform.translation().to_vec2();
                 let target_position = target.translation().to_vec2();
 
-                let attack_distance = range.distance();
+                const COME_CLOSER_FACTOR: f32 = 0.9;
+                let attack_distance = arms.attack_distance();
                 let distance2target = current_position.distance(target_position);
 
-                if distance2target > attack_distance {
+                if distance2target > attack_distance * COME_CLOSER_FACTOR {
                     character_state.set_moving(target_position);
                 } else {
                     if !character_state.is_attacking() {

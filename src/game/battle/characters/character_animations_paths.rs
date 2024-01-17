@@ -38,7 +38,8 @@ impl CharacterAnimationsPaths {
             CharacterOrigin::Red => FEM_RED.deref(),
             CharacterOrigin::Candy => FEM_CANDY.deref(),
             CharacterOrigin::Knife => FEM_KNIFE.deref(),
-            CharacterOrigin::Rose => FEM_ROSE.deref()
+            CharacterOrigin::Rose => FEM_ROSE.deref(),
+            CharacterOrigin::Orc => MAL_ORC.deref()
         }
     }
 }
@@ -47,6 +48,7 @@ static FEM_RED: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_red"))
 static FEM_KNIFE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_knife"));
 static FEM_CANDY: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_candy"));
 static FEM_ROSE: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("fem_rose"));
+static MAL_ORC: Lazy<CharacterAnimationsPaths> = Lazy::new(|| create("mal_orc"));
 
 fn create(folder: &str) -> CharacterAnimationsPaths {
     CharacterAnimationsPaths {
