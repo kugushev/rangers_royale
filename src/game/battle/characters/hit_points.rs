@@ -62,6 +62,6 @@ fn handle_hp_change(mut query: Query<(&mut HitPoints, &mut CharacterState)>){
             // todo: strange place, need to refactor. Let's create extra Component: IncomingDamage with parameters
             state.set_stunned();
         }
-        hp.changed = true;
+        hp.changed = false;
     }
 }

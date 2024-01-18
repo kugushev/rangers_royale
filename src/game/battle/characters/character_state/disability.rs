@@ -51,7 +51,7 @@ fn handle_death(mut query: Query<(Entity, &mut CharacterState, &mut AnimationCon
         }
 
         if timer.finished() {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }
