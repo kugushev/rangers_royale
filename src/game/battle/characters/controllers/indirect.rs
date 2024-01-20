@@ -3,6 +3,7 @@ use derive_getters::Getters;
 use crate::game::battle::characters::arms::Arms;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
+use crate::game::battle::characters::controllers::direct::{ControllerDirect, is_direct_active};
 use crate::game::battle::characters::controllers::indirect::ai::{AiAlgorithm, build_ai};
 use crate::game::battle::characters::controllers::indirect::player_input::build_player_input;
 use crate::game::battle::characters::position_tracker::PositionTracker;
@@ -13,8 +14,8 @@ pub mod ai;
 
 pub(super) fn build_indirect(app: &mut App) {
     app.add_systems(Update, handle_move_to)
-        .add_systems(Update, handle_attack);
-
+        .add_systems(Update, handle_attack)
+        .add_systems(Update, handle_idle);
 
     build_player_input(app);
     build_ai(app);
@@ -34,14 +35,14 @@ pub enum Directive {
 
 pub enum DirectiveSource {
     PlayerInput { selected: bool },
-    Ai(AiAlgorithm)
+    Ai(AiAlgorithm),
 }
 
 impl ControllerIndirect {
     pub fn new(directive_source: DirectiveSource) -> Self {
         Self {
             source: directive_source,
-            directive: None
+            directive: None,
         }
     }
 
@@ -80,7 +81,7 @@ fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndire
             if let Directive::Attack(target_entity, arms) = d {
                 let target = match passive_q.get(*target_entity) {
                     Ok(t) => t,
-                    _ => { return true; }
+                    _ => return true,
                 };
 
                 let current_position = transform.translation().to_vec2();
@@ -101,6 +102,18 @@ fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndire
             }
             false
         });
+    }
+}
+
+fn handle_idle(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, Option<&ControllerDirect>)>) {
+    for (mut character_state, mut controller, direct_controller) in &mut active_q {
+        if controller.has_directive() {
+            continue;
+        }
+
+        if is_direct_active(direct_controller) { continue; }
+
+        character_state.set_idle();
     }
 }
 

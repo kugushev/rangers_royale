@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::Arms;
-use crate::game::battle::characters::controllers::direct::ControllerDirect;
+use crate::game::battle::characters::controllers::direct::{ControllerDirect, is_direct_active};
 use crate::game::battle::characters::controllers::indirect::{ControllerIndirect, Directive, DirectiveSource};
 use crate::game::battle::characters::non_player_characters::NonPlayerCharacter;
 use crate::game::battle::characters::player_characters::PlayerCharacter;
@@ -18,11 +18,7 @@ fn handle_indirect_selection_input(mut query: Query<(&CursorCollider, &mut Contr
     }
 
     for (collider, mut indirect, direct) in &mut query {
-        if let Some(direct) = direct {
-            if direct.active() {
-                continue;
-            }
-        }
+        if is_direct_active(direct) { continue; }
 
         let selected = match &mut indirect.source {
             DirectiveSource::PlayerInput { selected: s @ _ } => s,
@@ -53,11 +49,7 @@ fn handle_indirect_action_input(mut player_q: Query<(&mut ControllerIndirect, Op
     }
 
     for (mut indirect, direct, arms) in &mut player_q {
-        if let Some(direct) = direct {
-            if direct.active() {
-                continue;
-            }
-        }
+        if is_direct_active(direct) { continue; }
 
         if let DirectiveSource::PlayerInput { selected: true } = &indirect.source {
             if let Some(npc) = npc_under_action {

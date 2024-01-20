@@ -18,6 +18,15 @@ impl ControllerDirect {
     pub fn active(&self) -> bool { self.input_device_id.is_some() }
 }
 
+pub fn is_direct_active(direct: Option<&ControllerDirect>) -> bool {
+    if let Some(direct) = direct {
+        if direct.active() {
+            return true;
+        }
+    }
+    false
+}
+
 fn toggle_direct_devices(mut query: Query<&mut ControllerDirect>, direct_inputs: Res<DirectInputs>) {
     // 'cleanup' controllers from unplugged gamepads
     for mut controller in &mut query {

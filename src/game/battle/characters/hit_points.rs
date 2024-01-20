@@ -38,7 +38,7 @@ fn setup_hp(mut query: Query<(&mut HitPoints, &Character)>) {
             CharacterOrigin::Candy => 20.0,
             CharacterOrigin::Knife => 20.0,
             CharacterOrigin::Rose => 20.0,
-            CharacterOrigin::Orc => 5.0
+            CharacterOrigin::Orc => 50.0
         };
 
         if hit_points.max != max {

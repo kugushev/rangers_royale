@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::Arms;
-use crate::game::battle::characters::controllers::direct::ControllerDirect;
+use crate::game::battle::characters::controllers::direct::{ControllerDirect, is_direct_active};
 use crate::game::battle::characters::controllers::indirect::{ControllerIndirect, Directive};
 
 pub(super) fn build_retaliation(app: &mut App) {
@@ -37,14 +37,10 @@ fn forget_offender(mut query: Query<&mut Retaliation>) {
 
 fn handle_retaliation(mut query: Query<(&mut ControllerIndirect, &mut Retaliation, &Arms, Option<&ControllerDirect>)>) {
     for (mut indirect, mut retaliation, arms, direct) in &mut query {
-        if indirect.has_directive() {
-            continue;
-        }
+        if is_direct_active(direct) { continue; }
 
-        if let Some(direct) = direct {
-            if direct.active() {
-                continue;
-            }
+        if let Some(Directive::Attack(..)) = indirect.directive() {
+            continue;
         }
 
         let offender = match retaliation.take_offender() {

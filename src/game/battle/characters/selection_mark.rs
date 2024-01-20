@@ -39,11 +39,14 @@ fn change_appearance(mut query: Query<(&mut Sprite, &mut Visibility, &Parent), W
             *visibility = Visibility::Inherited;
             sprite.color = if direct.active() {
                 Color::LIME_GREEN
-            } else if let DirectiveSource::PlayerInput { selected: true } = indirect.source() {
-                Color::default()
             } else {
-                Color::default().with_a(0.1)
-            };
+                let alpha = match indirect.source() {
+                    DirectiveSource::PlayerInput { selected: true } => 1.,
+                    DirectiveSource::PlayerInput { selected: false } => 0.1,
+                    DirectiveSource::Ai(_) => 0.,
+                };
+                Color::default().with_a(alpha)
+            }
         }
     }
 }
