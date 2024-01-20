@@ -3,18 +3,27 @@ use derive_getters::Getters;
 use crate::game::battle::characters::arms::Arms;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
+use crate::game::battle::characters::controllers::indirect::ai::{AiAlgorithm, build_ai};
+use crate::game::battle::characters::controllers::indirect::player_input::build_player_input;
 use crate::game::battle::characters::position_tracker::PositionTracker;
 use crate::game::utils::Vec3Ex;
 
-pub(super) fn build_controller_indirect(app: &mut App) {
+pub mod player_input;
+pub mod ai;
+
+pub(super) fn build_indirect(app: &mut App) {
     app.add_systems(Update, handle_move_to)
         .add_systems(Update, handle_attack);
+
+
+    build_player_input(app);
+    build_ai(app);
 }
 
-#[derive(Component, Getters, Default)]
+#[derive(Component, Getters)]
 pub struct ControllerIndirect {
     directive: Option<Directive>,
-    pub selected: bool,
+    source: DirectiveSource,
 }
 
 #[derive(Debug)]
@@ -23,9 +32,25 @@ pub enum Directive {
     Attack(Entity, Arms),
 }
 
+pub enum DirectiveSource {
+    PlayerInput { selected: bool },
+    Ai(AiAlgorithm)
+}
+
 impl ControllerIndirect {
+    pub fn new(directive_source: DirectiveSource) -> Self {
+        Self {
+            source: directive_source,
+            directive: None
+        }
+    }
+
     pub fn set_directive(&mut self, directive: Directive) {
         self.directive = Some(directive);
+    }
+
+    pub fn has_directive(&self) -> bool {
+        self.directive.is_some()
     }
 }
 

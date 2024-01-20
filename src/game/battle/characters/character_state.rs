@@ -30,6 +30,13 @@ impl CharacterState {
         &mut self.activity
     }
 
+    pub fn is_idle(&self) -> bool {
+        match self.activity {
+            Activity::Idle => true,
+            _ => false
+        }
+    }
+
     pub fn set_idle(&mut self) {
         self.activity = Activity::Idle;
     }

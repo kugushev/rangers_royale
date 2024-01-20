@@ -1,12 +1,14 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::Arms;
+use crate::game::battle::characters::attackable::Attackable;
 use crate::game::battle::characters::character_animation::{AnimationController, OneShotAnimation};
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
-use crate::game::battle::characters::damage::Damage;
+use crate::game::battle::characters::attacker::Attacker;
 use crate::game::battle::characters::faction::Faction;
 use crate::game::battle::characters::hit_points::HitPoints;
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
+use crate::game::battle::value_objects::Damage;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::Vec3Ex;
 
@@ -30,10 +32,10 @@ const ATTACK_RELEASE_FRAMES: usize = ATTACK_ALL_FRAMES - ATTACK_CHARGE_FRAMES - 
 
 const ATTACK_TIME_SECONDS: f32 = 0.5;
 
-fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms, &Damage, &Faction)>,
-                        mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut HitPoints, &Faction)>,
+fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationController, &GlobalTransform, &mut PositionTracker, &Arms, &Attacker, &Faction, Entity)>,
+                        mut targets_q: Query<(&GlobalTransform, &Obstacle, &mut Attackable, &Faction)>,
                         time: Res<Time>) {
-    for (mut state, mut animation_controller, transform, position_tracker, arms, damage, faction) in query.iter_mut() {
+    for (mut state, mut animation_controller, transform, position_tracker, arms, attacker, faction, entity) in query.iter_mut() {
         if !state.is_active() {
             animation_controller.suspend_attack();
             continue;
@@ -63,12 +65,12 @@ fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationCon
                 }
             }
             AttackState::ApplyingDamage => {
-                for (target_trans, target_obstacle, target_hitpoints, target_faction) in &mut targets_q {
+                for (target_trans, target_obstacle, target_attackable, target_faction) in &mut targets_q {
                     if !faction.is_rival(target_faction) {
-                        continue
+                        continue;
                     }
 
-                    apply_damage(target_trans, target_obstacle, target_hitpoints, transform.translation().to_vec2(), &position_tracker, arms, damage);
+                    apply_damage(target_trans, target_obstacle, target_attackable, transform.translation().to_vec2(), &position_tracker, arms, attacker, entity);
                 }
 
                 *attack_state = AttackState::Releasing(get_attack_time(ATTACK_RELEASE_FRAMES));
@@ -83,12 +85,9 @@ fn handle_player_attack(mut query: Query<(&mut CharacterState, &mut AnimationCon
     }
 }
 
-fn apply_damage(transform: &GlobalTransform,obstacle:  &Obstacle, mut hit_points: Mut<HitPoints>,
-                character_position: Vec2, position_tracker: &PositionTracker, arms: &Arms, damage: &Damage) {
-    if hit_points.is_dead() {
-        return;
-    }
-
+fn apply_damage(transform: &GlobalTransform, obstacle: &Obstacle, mut attackable: Mut<Attackable>,
+                character_position: Vec2, position_tracker: &PositionTracker, arms: &Arms, attacker: &Attacker,
+                attacker_entity: Entity) {
     let target_position = transform.translation().to_vec2();
     let distance = character_position.distance(target_position);
     let attack_range = arms.attack_distance();
@@ -101,7 +100,8 @@ fn apply_damage(transform: &GlobalTransform,obstacle:  &Obstacle, mut hit_points
             CharacterDirection::Right => target_position.x > character_position.x,
         };
         if target_in_front {
-            hit_points.suffer(damage);
+            let amount = *attacker.damage_amount();
+            attackable.apply(Damage::new(amount, attacker_entity));
         }
     }
 }

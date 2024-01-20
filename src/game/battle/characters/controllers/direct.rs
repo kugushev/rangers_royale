@@ -4,7 +4,7 @@ use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::input::direct_inputs::DirectInputs;
 use crate::game::utils::Vec3Ex;
 
-pub(super) fn build_controller_direct(app: &mut App) {
+pub(in crate::game::battle::characters) fn build_direct(app: &mut App) {
     app.add_systems(PreUpdate, toggle_direct_devices)
         .add_systems(PreUpdate, handle_direct_inputs.after(toggle_direct_devices));
 }

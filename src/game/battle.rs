@@ -5,6 +5,7 @@ use crate::game::game_mode::GameMode;
 
 pub mod world;
 pub mod characters;
+pub mod value_objects;
 
 pub(super) fn build_battle(app: &mut App) {
     app.add_systems(OnExit(GameMode::Battle), cleanup);

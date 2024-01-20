@@ -1,25 +1,22 @@
 use bevy::prelude::*;
+use derive_getters::Getters;
 use crate::game::battle::characters::Character;
+use crate::game::battle::value_objects::Damage;
 use crate::game::registry::CharacterOrigin;
 
-pub(super) fn build_damage(app: &mut App) {
+pub(super) fn build_attacker(app: &mut App) {
     app.add_systems(First, setup_damage);
 }
 
-#[derive(Component, Default)]
-pub struct Damage {
-    amount: f32,
+#[derive(Component, Default, Getters)]
+pub struct Attacker {
+    damage_amount: f32,
 }
 
-impl Damage {
-    pub fn get_amount(&self) -> f32 {
-        self.amount
-    }
-}
 
-fn setup_damage(mut query: Query<(&mut Damage, &Character)>) {
+fn setup_damage(mut query: Query<(&mut Attacker, &Character)>) {
     for (mut damage, character) in &mut query {
-        damage.amount = match character.origin() {
+        damage.damage_amount = match character.origin() {
             CharacterOrigin::Red => 1.0,
             CharacterOrigin::Candy => 1.0,
             CharacterOrigin::Knife => 1.0,

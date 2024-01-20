@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use crate::game::battle::characters::controller_direct::ControllerDirect;
-use crate::game::battle::characters::controller_indirect::ControllerIndirect;
+use crate::game::battle::characters::controllers::direct::ControllerDirect;
+use crate::game::battle::characters::controllers::indirect::{ControllerIndirect, DirectiveSource};
 use crate::game::battle::characters::player_characters::PlayerCharacter;
 use crate::game::common::layer2d::LAYER_SIZE;
 
@@ -39,7 +39,7 @@ fn change_appearance(mut query: Query<(&mut Sprite, &mut Visibility, &Parent), W
             *visibility = Visibility::Inherited;
             sprite.color = if direct.active() {
                 Color::LIME_GREEN
-            } else if indirect.selected {
+            } else if let DirectiveSource::PlayerInput { selected: true } = indirect.source() {
                 Color::default()
             } else {
                 Color::default().with_a(0.1)
