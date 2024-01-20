@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use bevy::prelude::*;
+use bevy::utils::petgraph::algo::astar;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
 use crate::game::common::obstacle::Obstacle;

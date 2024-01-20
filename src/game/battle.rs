@@ -1,16 +1,19 @@
 use bevy::prelude::*;
 use crate::game::battle::characters::build_characters;
+use crate::game::battle::pathfinder::build_pathfinder;
 use crate::game::battle::world::build_world;
 use crate::game::game_mode::GameMode;
 
 pub mod world;
 pub mod characters;
 pub mod value_objects;
+pub mod pathfinder;
 
 pub(super) fn build_battle(app: &mut App) {
     app.add_systems(OnExit(GameMode::Battle), cleanup);
     build_world(app);
     build_characters(app);
+    build_pathfinder(app);
 }
 
 #[derive(Component)]
