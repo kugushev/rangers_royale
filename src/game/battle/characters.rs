@@ -12,6 +12,7 @@ mod faction;
 mod attackable;
 mod retaliation;
 mod controllers;
+pub mod evade_strategy;
 
 use bevy::prelude::*;
 use crate::game::battle::characters::arms::build_arms;
@@ -24,6 +25,7 @@ use crate::game::battle::characters::controllers::build_controllers;
 use crate::game::battle::characters::faction::Faction;
 use crate::game::battle::characters::hit_points::{build_hit_points, HitPoints};
 use crate::game::battle::characters::non_player_characters::build_non_player_characters;
+use crate::game::battle::characters::evade_strategy::{build_evade_strategy, EvadeStrategy};
 use crate::game::battle::characters::player_characters::build_player_characters;
 use crate::game::battle::characters::position_tracker::{build_position_tracking, PositionTracker};
 use crate::game::battle::characters::retaliation::{build_retaliation, Retaliation};
@@ -45,6 +47,7 @@ pub(super) fn build_characters(app: &mut App) {
     build_attackable(app);
     build_retaliation(app);
     build_controllers(app);
+    build_evade_strategy(app);
 }
 
 #[derive(Component)]
@@ -66,7 +69,8 @@ pub struct CharacterBundle {
     hit_points: HitPoints,
     attacker: Attacker,
     attackable: Attackable,
-    retaliation: Retaliation
+    retaliation: Retaliation,
+    evade_strategy: EvadeStrategy
 }
 
 impl CharacterBundle {
@@ -83,7 +87,8 @@ impl CharacterBundle {
             hit_points: default(),
             attacker: default(),
             attackable: default(),
-            retaliation: default()
+            retaliation: default(),
+            evade_strategy: EvadeStrategy::new()
         }
     }
 }

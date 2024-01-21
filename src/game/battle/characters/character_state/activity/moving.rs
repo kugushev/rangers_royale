@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::utils::petgraph::algo::astar;
 use crate::game::battle::characters::character_state::activity::Activity;
 use crate::game::battle::characters::character_state::CharacterState;
+use crate::game::battle::characters::evade_strategy::EvadeStrategy;
 use crate::game::common::obstacle::Obstacle;
 use crate::game::utils::{find_circle_to_circle_intersections, Vec3Ex};
 
@@ -14,10 +15,10 @@ pub(super) fn build_moving(app: &mut App)
 const DEFAULT_SPEED: f32 = 100.0;
 
 
-fn handle_move(mut query: Query<(&mut CharacterState, &mut Transform, &Obstacle, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
+fn handle_move(mut query: Query<(&mut CharacterState, &mut Transform, &Obstacle, &EvadeStrategy, Entity)>, obstacles_q: Query<(&Obstacle, &GlobalTransform, Entity)>, time: Res<Time>) {
 
     // todo: refactor
-    for (mut state, mut transform, obstacle, entity) in &mut query {
+    for (mut state, mut transform, obstacle, evade_strategy, entity) in &mut query {
         if !state.is_active() {
             continue;
         }
@@ -50,14 +51,15 @@ fn handle_move(mut query: Query<(&mut CharacterState, &mut Transform, &Obstacle,
                                                             subject_radius,
                                                             entity,
                                                             &obstacles_q,
-                                                            &mut evade_buffer);
+                                                            &mut evade_buffer,
+                                                            evade_strategy);
 
                 if no_collisions {
                     final_new_position = Some(new_position);
                     break 'collisions;
                 }
 
-                if let Some(p) = evade_buffer.pop_front() {
+                if let Some(p) = evade_buffer.pop_back() {
                     new_position = p;
                 }
             }
@@ -97,7 +99,8 @@ fn move_target_closer_if_not_reachable(target: Vec2, obstacles_q: &Query<(&Obsta
 fn check_if_not_collisions(new_position: Vec2, current: Vec2, target: Vec2, move_length: f32,
                            subject_radius: f32, subject_entity: Entity,
                            obstacles_q: &Query<(&Obstacle, &GlobalTransform, Entity)>,
-                           evade_buffer: &mut VecDeque<Vec2>) -> bool
+                           evade_buffer: &mut VecDeque<Vec2>,
+                           evade_strategy: &EvadeStrategy) -> bool
 {
     for (obstacle, transform, obstacle_entity) in obstacles_q {
         if obstacle_entity == subject_entity {
@@ -120,16 +123,29 @@ fn check_if_not_collisions(new_position: Vec2, current: Vec2, target: Vec2, move
                 evade_buffer.push_back(intersection);
                 return false;
             }
-            [Some(intersection1), Some(intersection2)] => {
-                if intersection1.distance(target) < intersection2.distance(target) {
-                    evade_buffer.push_back(intersection1);
-                    evade_buffer.push_back(intersection2);
-                } else {
-                    evade_buffer.push_back(intersection2);
-                    evade_buffer.push_back(intersection1);
+            [Some(intersection1), Some(intersection2)] =>
+                {
+                    match evade_strategy {
+                        EvadeStrategy::Left => {
+                            evade_buffer.push_back(intersection1);
+                            evade_buffer.push_back(intersection2);
+                        }
+                        EvadeStrategy::Right => {
+                            evade_buffer.push_back(intersection2);
+                            evade_buffer.push_back(intersection1);
+                        }
+                    }
+
+                    // todo: use distance check for static obstacles, like trees
+                    // if intersection1.distance(target) < intersection2.distance(target) {
+                    //     evade_buffer.push_back(intersection1);
+                    //     evade_buffer.push_back(intersection2);
+                    // } else {
+                    //     evade_buffer.push_back(intersection2);
+                    //     evade_buffer.push_back(intersection1);
+                    // }
+                    return false;
                 }
-                return false;
-            }
             _ => { error!("Unexpected intersections") }
         }
     }
