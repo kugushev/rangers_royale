@@ -23,8 +23,8 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             CharacterBundle::new(origin, Faction::Player, position, &asset_server, &mut texture_atlases),
             PlayerCharacter,
             ControllerDirect::default(),
-            // ControllerIndirect::new(DirectiveSource::PlayerInput { selected: false }),
-            ControllerIndirect::new(DirectiveSource::Ai(AiAlgorithm::Simple)),
+            ControllerIndirect::new(DirectiveSource::PlayerInput { selected: false }),
+            // ControllerIndirect::new(DirectiveSource::Ai(AiAlgorithm::Simple)),
             Arms::Regular
         )).with_children(|parent| {
             parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));

@@ -37,7 +37,7 @@ fn act_simple(mut query: Query<(&mut ControllerIndirect, &GlobalTransform, &Arms
             let distance = other_transform.translation().distance(transform.translation());
 
             if let Some((prev_dist, _)) = nearest_opponent {
-                if prev_dist >= distance {
+                if prev_dist <= distance {
                     continue;
                 }
             }
