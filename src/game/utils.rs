@@ -15,6 +15,7 @@ pub fn find_circle_to_circle_intersections(c0: Vec2, r0: f32, c1: Vec2, r1: f32)
     let mut result = [None, None];
 
 
+
     let dist = c0.distance(c1);
 
     if (dist - (r0 + r1)).abs() < f32::EPSILON
@@ -75,3 +76,4 @@ impl AutoResetGate {
         !previous
     }
 }
+

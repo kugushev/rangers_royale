@@ -16,6 +16,8 @@ pub struct Attacker {
 
 fn setup_damage(mut query: Query<(&mut Attacker, &Character)>) {
     for (mut damage, character) in &mut query {
+
+        // damage.damage_amount = 0.;
         damage.damage_amount = match character.origin() {
             CharacterOrigin::Red => 1.0,
             CharacterOrigin::Candy => 1.0,

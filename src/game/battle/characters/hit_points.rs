@@ -19,7 +19,7 @@ pub struct HitPoints {
 impl HitPoints {
     pub fn suffer(&mut self, damage: Damage) {
         self.current -= damage.amount();
-        println!("Suffer: {}/{}", self.current, self.max);
+        // println!("Suffer: {}/{}", self.current, self.max);
     }
 
     pub fn is_dead(&self) -> bool {

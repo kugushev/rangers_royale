@@ -19,9 +19,9 @@ fn act_simple(mut query: Query<(&mut ControllerIndirect, &GlobalTransform, &Arms
             _ => continue,
         };
 
-        if let Some(Directive::Attack(..)) = controller.directive() {
-            continue;
-        }
+        // if let Some(Directive::Attack(..)) = controller.directive() {
+        //     continue;
+        // }
 
         // find nearest
         let mut nearest_opponent: Option<(f32, Entity)> = None;
