@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::game::battle::world::WorldMap;
+use crate::game::battle::encounter::encounter_map::EncounterMap;
 
 pub(super) fn build_layer2d(app: &mut App) {
     app.add_systems(PostUpdate, y_sort);
@@ -22,7 +22,7 @@ impl Layer2d {
     }
 }
 
-fn y_sort(mut query: Query<(&mut Transform, &Layer2d)>, world_map: Res<WorldMap>) {
+fn y_sort(mut query: Query<(&mut Transform, &Layer2d)>, world_map: Res<EncounterMap>) {
     for (mut transform, layer) in &mut query {
         let base = layer_to_z(*layer);
         let shift = transform.translation.y / world_map.get_height();

@@ -46,7 +46,6 @@ fn handle_death(mut query: Query<(Entity, &mut CharacterState, &mut AnimationCon
         timer.tick(time.delta());
 
         if once.enter() {
-            println!("Animate death");
             animation_controller.request_one_shot(OneShotAnimation::Death, DEATH_TIME);
         }
 

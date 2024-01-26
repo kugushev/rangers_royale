@@ -1,17 +1,17 @@
-mod player_characters;
+pub mod player_characters;
 pub mod character_animation;
-mod position_tracker;
-mod character_animations_paths;
-mod selection_mark;
-mod non_player_characters;
+pub mod position_tracker;
+pub mod character_animations_paths;
+pub mod selection_mark;
+pub mod non_player_characters;
 pub mod character_state;
 pub mod arms;
-mod hit_points;
-mod attacker;
-mod faction;
-mod attackable;
-mod retaliation;
-mod controllers;
+pub mod hit_points;
+pub mod attacker;
+pub mod faction;
+pub mod attackable;
+pub mod retaliation;
+pub mod controllers;
 pub mod evade_strategy;
 
 use bevy::prelude::*;
@@ -75,11 +75,10 @@ pub struct CharacterBundle {
 
 impl CharacterBundle {
     pub fn new(origin: CharacterOrigin, faction: Faction, position: Vec2, asset_server: &Res<AssetServer>, texture_atlases: &mut ResMut<Assets<TextureAtlas>>) -> Self {
-        let paths = CharacterAnimationsPaths::find(origin);
         Self {
             character: Character(origin),
             faction,
-            animations: CharacterAnimationBundle::new(position, paths, asset_server, texture_atlases),
+            animations: CharacterAnimationBundle::new(position, origin, asset_server, texture_atlases),
             cursor_collider: CursorCollider::new(Vec2::new(60., 100.), Vec2::new(0., 40.)),
             obstacle: Obstacle::new(CHARACTER_RADIUS),
             position_tracker: default(),

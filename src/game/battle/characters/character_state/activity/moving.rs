@@ -45,7 +45,9 @@ fn handle_move(mut query: Query<(&mut CharacterState, &mut Transform, &Obstacle,
             let final_new_position = next_step_no_collisions(&obstacles_q, evade_strategy, entity, current, subject_radius, move_length, delta);
 
             match final_new_position {
-                None => { println!("Stuck!") }
+                None => {
+                    // println!("Stuck!")
+                }
                 Some(p) => transform.translation = vec2_to_vec3(p, z)
             }
         }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::sync::Mutex;
 use bevy::prelude::*;
 use derive_getters::Getters;
 use crate::game::battle::characters::Character;
@@ -5,13 +7,21 @@ use crate::game::battle::characters::character_animations_paths::{CHARACTER_ANIM
 use crate::game::battle::characters::position_tracker::{CharacterDirection, PositionTracker};
 use crate::game::common::animation::{AnimationBundle, AnimationIndices, AnimationTimer};
 use crate::game::common::layer2d::Layer2d;
+use crate::game::registry::CharacterOrigin;
 
 pub(super) fn build_character_animation(app: &mut App) {
-    app
-        .add_systems(Update, toggle_texture_atlas_for_movement)
+    app.add_systems(Update, toggle_texture_atlas_for_movement)
         .add_systems(Update, toggle_texture_atlas_for_one_shot);
 }
 
+static CHARACTER_ANIMATION_HANDLES_CACHE: Mutex<CharacterAnimationHandlesCache> = Mutex::new(CharacterAnimationHandlesCache {
+    map: None
+});
+
+#[derive(Resource)]
+struct CharacterAnimationHandlesCache {
+    map: Option<HashMap<CharacterOrigin, CharacterAnimationHandles>>,
+}
 
 #[derive(Bundle)]
 pub(super) struct CharacterAnimationBundle {
@@ -21,9 +31,20 @@ pub(super) struct CharacterAnimationBundle {
 }
 
 impl CharacterAnimationBundle {
-    pub fn new(position: Vec2, paths: &CharacterAnimationsPaths,
+    pub fn new(position: Vec2, origin: CharacterOrigin,
                asset_server: &AssetServer, texture_atlases: &mut Assets<TextureAtlas>) -> Self {
-        let handles = CharacterAnimationHandles::new(asset_server, texture_atlases, paths);
+        let mut cache = CHARACTER_ANIMATION_HANDLES_CACHE.lock().expect("Character handles cache is poisoned");
+        if cache.map.is_none() {
+            cache.map = Some(HashMap::new());
+        }
+        let map = cache.map.as_mut().unwrap();
+
+        let handles = map.entry(origin).or_insert_with(|| {
+            let paths = CharacterAnimationsPaths::find(origin);
+            CharacterAnimationHandles::new(asset_server, texture_atlases, &paths)
+        });
+        let handles = handles.clone();
+
         Self {
             animation_bundle: AnimationBundle::new(position, Layer2d::Character, CHARACTER_ANIMATIONS_DURATION, CHARACTER_ANIMATIONS_FPS, handles.idle_down.clone_weak()),
             handles,
@@ -50,7 +71,7 @@ struct OneShot {
     animation: OneShotAnimation,
     elapsed: Timer,
     launched: bool,
-    suspend: bool
+    suspend: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -72,7 +93,7 @@ impl AnimationController {
             animation,
             elapsed: Timer::from_seconds(seconds, TimerMode::Once),
             launched: false,
-            suspend: false
+            suspend: false,
         });
     }
 
@@ -140,6 +161,35 @@ impl CharacterAnimationHandles {
             swing_up: load_spritesheet(asset_server, texture_atlases, &paths.swing_up),
             swing_down: load_spritesheet(asset_server, texture_atlases, &paths.swing_down),
             swing_side: load_spritesheet(asset_server, texture_atlases, &paths.swing_side),
+        }
+    }
+
+    fn clone(&self) -> Self {
+        Self {
+            idle_up: self.idle_up.clone(),
+            idle_down: self.idle_down.clone(),
+            idle_side: self.idle_side.clone(),
+            walk_up: self.walk_up.clone(),
+            walk_down: self.walk_down.clone(),
+            walk_side: self.walk_side.clone(),
+            run_up: self.run_up.clone(),
+            run_down: self.run_down.clone(),
+            run_side: self.run_side.clone(),
+            hurt_up: self.hurt_up.clone(),
+            hurt_down: self.hurt_down.clone(),
+            hurt_side: self.hurt_side.clone(),
+            die_up: self.die_up.clone(),
+            die_down: self.die_down.clone(),
+            die_side: self.die_side.clone(),
+            spell_up: self.spell_up.clone(),
+            spell_down: self.spell_down.clone(),
+            spell_side: self.spell_side.clone(),
+            stab_up: self.stab_up.clone(),
+            stab_down: self.stab_down.clone(),
+            stab_side: self.stab_side.clone(),
+            swing_up: self.swing_up.clone(),
+            swing_down: self.swing_down.clone(),
+            swing_side: self.swing_side.clone(),
         }
     }
 }

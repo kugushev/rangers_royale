@@ -8,5 +8,6 @@ pub(super) fn build_game_mode(app: &mut App) {
 pub enum GameMode {
     MainMenu,
     #[default]
+    Tournament,
     Battle,
 }
