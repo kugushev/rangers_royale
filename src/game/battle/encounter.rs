@@ -70,8 +70,7 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             CharacterBundle::new(origin, Faction::Player, position, &asset_server, &mut texture_atlases),
             PlayerCharacter,
             ControllerDirect::default(),
-            // ControllerIndirect::new(DirectiveSource::PlayerInput { selected: false }),
-            ControllerIndirect::new(DirectiveSource::Ai(AiAlgorithm::Simple)),
+            ControllerIndirect::new(DirectiveSource::PlayerInput { selected: false }),
             Arms::Regular
         )).with_children(|parent| {
             parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));
@@ -96,7 +95,7 @@ fn despawn_player_characters(mut commands: Commands, query: Query<Entity, With<P
     }
 }
 
-fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>, tournament: Res<Tournament>) {
     let mut do_spawn = |position, origin| {
         commands.spawn((
             CharacterBundle::new(origin, Faction::Enemy, position, &asset_server, &mut texture_atlases),
@@ -110,9 +109,13 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
 
     const SHIFT: f32 = 100.;
     do_spawn(Vec2::new(600. + SHIFT, 0.), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600. - SHIFT, 0.), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600., 0. + SHIFT), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600., 0. - SHIFT), CharacterOrigin::Orc);
+
+    for i in 0..tournament.win {
+        do_spawn(Vec2::new(600., 0. - SHIFT * (i as f32)), CharacterOrigin::Orc);
+    }
+    // do_spawn(Vec2::new(600. - SHIFT, 0.), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600., 0. + SHIFT), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600., 0. - SHIFT), CharacterOrigin::Orc);
     // do_spawn(Vec2::new(600. + SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
     // do_spawn(Vec2::new(600. + SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
     // do_spawn(Vec2::new(600. - SHIFT, 0. - SHIFT), CharacterOrigin::Orc);

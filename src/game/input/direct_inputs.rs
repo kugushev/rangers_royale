@@ -24,8 +24,8 @@ impl DirectInputs {
 #[derive(Default, Getters)]
 pub struct DirectDeviceInput {
     action_command: Option<()>,
-    horizontal: f32,
-    vertical: f32,
+    horizontal: Option<f32>,
+    vertical: Option<f32>,
 }
 
 fn handle_gamepad_input(
@@ -34,19 +34,24 @@ fn handle_gamepad_input(
     axes: Res<Axis<GamepadAxis>>,
     mut inputs: ResMut<DirectInputs>,
 ) {
-    const DEAD_ZONE: f32 = 0.1;
     let stick_to_axis = |axis_type, gamepad| {
         let axis = axes.get(GamepadAxis::new(gamepad, axis_type));
         if let Some(value) = axis {
+            const DEAD_ZONE: f32 = 0.1;
             if value.abs() > DEAD_ZONE {
-                return value;
+                return Some(value);
             }
         }
-        0.0
+        None
     };
 
     let just_pressed = |button, gamepad|
-        if button_inputs.just_pressed(GamepadButton::new(gamepad, button)) { Some(()) } else { None };
+        if button_inputs.just_pressed(GamepadButton::new(gamepad, button))
+        {
+            Some(())
+        } else {
+            None
+        };
 
     for gp in gamepads.iter() {
         let input = inputs.0.entry(gp.id).or_insert(default());

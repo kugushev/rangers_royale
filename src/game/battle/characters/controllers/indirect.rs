@@ -55,9 +55,9 @@ impl ControllerIndirect {
     }
 }
 
-fn handle_move_to(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect)>) {
-    for (mut character_state, mut controller) in &mut active_q {
-        handle(&mut controller, |d| {
+fn handle_move_to(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, Option<&ControllerDirect>)>) {
+    for (mut character_state, mut controller, controller_direct) in &mut active_q {
+        handle(&mut controller, controller_direct, |d| {
             if let Directive::MoveTo(target, processed) = d {
                 if !*processed {
                     character_state.set_moving(*target);
@@ -74,10 +74,10 @@ fn handle_move_to(mut active_q: Query<(&mut CharacterState, &mut ControllerIndir
     }
 }
 
-fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, &GlobalTransform, &mut PositionTracker)>,
+fn handle_attack(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect, Option<&ControllerDirect>, &GlobalTransform, &mut PositionTracker)>,
                  passive_q: Query<&GlobalTransform>) {
-    for (mut character_state, mut controller, transform, mut position_tracker) in &mut active_q {
-        handle(&mut controller, |d| {
+    for (mut character_state, mut controller, controller_direct, transform, mut position_tracker) in &mut active_q {
+        handle(&mut controller, controller_direct, |d| {
             if let Directive::Attack(target_entity, arms) = d {
                 let target = match passive_q.get(*target_entity) {
                     Ok(t) => t,
@@ -111,13 +111,19 @@ fn handle_idle(mut active_q: Query<(&mut CharacterState, &mut ControllerIndirect
             continue;
         }
 
-        if is_direct_active(direct_controller) { continue; }
+        if is_direct_active(direct_controller) {
+            continue;
+        }
 
         character_state.set_idle();
     }
 }
 
-fn handle(controller: &mut ControllerIndirect, handler: impl FnOnce(&mut Directive) -> bool) {
+fn handle(controller: &mut ControllerIndirect, controller_direct: Option<&ControllerDirect>, handler: impl FnOnce(&mut Directive) -> bool) {
+    if is_direct_active(controller_direct) {
+        return;
+    }
+
     let directive = match &mut controller.directive {
         Some(d) => d,
         None => { return; }

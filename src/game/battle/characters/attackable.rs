@@ -32,7 +32,7 @@ fn handle_incoming_damage(mut query: Query<(&mut Attackable, &mut HitPoints, &mu
                 state.set_died();
                 break 'damages;
             } else {
-                state.set_stunned();
+                // state.set_stunned();
             }
 
             if let Some(retaliation) = &mut retaliation {
