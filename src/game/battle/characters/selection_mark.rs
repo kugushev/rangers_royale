@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use bevy::prelude::*;
 use crate::game::battle::characters::controllers::direct::ControllerDirect;
 use crate::game::battle::characters::controllers::indirect::{ControllerIndirect, DirectiveSource};
@@ -14,12 +15,17 @@ pub struct SelectionMarkBundle {
     sprite: SpriteBundle,
 }
 
+static TEXTURE_CACHE: Mutex<Option<Handle<Image>>> = Mutex::new(None);
+
 impl SelectionMarkBundle {
     pub fn new(asset_server: &AssetServer) -> Self {
+        let mut cached_texture = TEXTURE_CACHE.lock().expect("Texture Cache is poisoned");
+        let texture = cached_texture.get_or_insert_with(|| asset_server.load("my/Selector.png"));
+
         Self {
             mark: SelectionMark,
             sprite: SpriteBundle {
-                texture: asset_server.load("my/Selector.png"),
+                texture: texture.clone_weak(),
                 transform: Transform::from_xyz(0., 0., -1. * LAYER_SIZE),
                 visibility: Visibility::Hidden,
                 ..default()
