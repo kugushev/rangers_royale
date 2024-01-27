@@ -10,4 +10,6 @@ pub enum GameMode {
     #[default]
     Tournament,
     Battle,
+    GameOver,
+    Chamption
 }

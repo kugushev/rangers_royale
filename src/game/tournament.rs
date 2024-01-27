@@ -10,7 +10,19 @@ pub(super) fn build_tournament(app: &mut App){
 #[derive(Resource, Default)]
 pub struct Tournament {
     pub money: u32,
-    pub xp: u32
+    pub xp: u32,
+    pub win: u32,
+    pub loose: u32
+}
+
+impl Tournament {
+    pub fn is_chamption(&self) -> bool {
+        self.win >= 1
+    }
+
+    pub fn is_game_over(&self) -> bool {
+        self.loose >= 2
+    }
 }
 
 fn next_round(mut tournament: Res<Tournament>, mut encounter: ResMut<Encounter>, mut game_mode: ResMut<NextState<GameMode>>) {

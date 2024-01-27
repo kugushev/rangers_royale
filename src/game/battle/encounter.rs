@@ -31,7 +31,7 @@ pub(super) fn build_encounter(app: &mut App) {
 #[derive(Resource, Default)]
 pub struct Encounter {}
 
-fn finish_check(player_chars_q: Query<(), With<PlayerCharacter>>, enemy_chars_q: Query<(), With<NonPlayerCharacter>>, mut game_mode: ResMut<NextState<GameMode>>, mut tournament: ResMut<Tournament>){
+fn finish_check(player_chars_q: Query<(), With<PlayerCharacter>>, enemy_chars_q: Query<(), With<NonPlayerCharacter>>, mut game_mode: ResMut<NextState<GameMode>>, mut tournament: ResMut<Tournament>) {
     let mut player_chars = 0;
     for _ in &player_chars_q {
         player_chars += 1;
@@ -45,11 +45,22 @@ fn finish_check(player_chars_q: Query<(), With<PlayerCharacter>>, enemy_chars_q:
     if player_chars == 0 || enemy_chars == 0 {
         if enemy_chars == 0 {
             tournament.money += 1;
+            tournament.win += 1;
+        } else {
+            tournament.loose += 1;
         }
 
-        tournament.xp += 4 -player_chars;
+        tournament.xp += 4 - player_chars;
 
-        game_mode.set(GameMode::Tournament)
+        let next_mode = if tournament.is_chamption() {
+            GameMode::Chamption
+        } else if tournament.is_game_over() {
+            GameMode::GameOver
+        } else {
+            GameMode::Tournament
+        };
+
+        game_mode.set(next_mode)
     }
 }
 
@@ -98,15 +109,6 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
     };
 
     const SHIFT: f32 = 100.;
-    // do_spawn(Vec2::new(300. + SHIFT, 0.), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300. - SHIFT, 0.), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300., 0. + SHIFT), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300., 0. - SHIFT), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300. + SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300. + SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300. - SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
-    // do_spawn(Vec2::new(300. - SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
-
     do_spawn(Vec2::new(600. + SHIFT, 0.), CharacterOrigin::Orc);
     do_spawn(Vec2::new(600. - SHIFT, 0.), CharacterOrigin::Orc);
     do_spawn(Vec2::new(600., 0. + SHIFT), CharacterOrigin::Orc);

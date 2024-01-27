@@ -19,6 +19,9 @@ pub(crate) struct EncounterMap {
     pub tile_height: f32,
 }
 
+#[derive(Component)]
+struct Disposable;
+
 impl EncounterMap {
     pub fn get_height(&self) -> f32 { self.vertical_tiles as f32 * self.tile_height }
     pub fn get_width(&self) -> f32 { self.horizontal_tiles as f32 * self.tile_width }
@@ -39,7 +42,7 @@ impl Default for EncounterMap {
     }
 }
 
-pub fn draw_tiles(encounter_map: Res<EncounterMap>, mut commands: Commands, asset_server: Res<AssetServer>) {
+fn draw_tiles(encounter_map: Res<EncounterMap>, mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture_handle: Handle<Image> = asset_server.load("paid/tiles/Dungeon@128x128.png");
 
     let map_size = TilemapSize { x: encounter_map.horizontal_tiles, y: encounter_map.vertical_tiles };
@@ -50,11 +53,13 @@ pub fn draw_tiles(encounter_map: Res<EncounterMap>, mut commands: Commands, asse
         for y in 0..map_size.y {
             let tile_pos = TilePos { x, y };
             let tile_entity = commands
-                .spawn(TileBundle {
-                    position: tile_pos,
-                    tilemap_id: TilemapId(tilemap_entity),
-                    ..Default::default()
-                })
+                .spawn((
+                    Disposable,
+                    TileBundle {
+                        position: tile_pos,
+                        tilemap_id: TilemapId(tilemap_entity),
+                        ..Default::default()
+                    }))
                 .id();
             tile_storage.set(&tile_pos, tile_entity);
         }
@@ -64,18 +69,22 @@ pub fn draw_tiles(encounter_map: Res<EncounterMap>, mut commands: Commands, asse
     let grid_size = tile_size.into();
     let map_type = TilemapType::default();
 
-    commands.entity(tilemap_entity).insert(TilemapBundle {
-        grid_size,
-        map_type,
-        size: map_size,
-        storage: tile_storage,
-        texture: TilemapTexture::Single(texture_handle),
-        tile_size,
-        transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
-        ..Default::default()
-    });
+    commands.entity(tilemap_entity).insert((
+        Disposable,
+        TilemapBundle {
+            grid_size,
+            map_type,
+            size: map_size,
+            storage: tile_storage,
+            texture: TilemapTexture::Single(texture_handle),
+            tile_size,
+            transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
+            ..Default::default()
+        }));
 }
 
-pub fn clear_tiles() {
-    // todo: clean
+fn clear_tiles(mut query: Query<Entity, With<Disposable>>, mut commands: Commands) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
 }
