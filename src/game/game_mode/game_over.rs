@@ -8,6 +8,7 @@ pub(super) fn build_game_over(app: &mut App){
 fn show_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(NodeBundle {
         style: Style {
+            width: Val::Percent(100.),
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Center,
             ..default()

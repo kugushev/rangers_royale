@@ -17,11 +17,11 @@ pub struct Tournament {
 
 impl Tournament {
     pub fn is_chamption(&self) -> bool {
-        self.win >= 5
+        self.win >= 10
     }
 
     pub fn is_game_over(&self) -> bool {
-        self.loose >= 2
+        self.loose >= 3
     }
 }
 

@@ -8,6 +8,7 @@ use crate::game::battle::characters::controllers::direct::ControllerDirect;
 use crate::game::battle::characters::controllers::indirect::{ControllerIndirect, DirectiveSource};
 use crate::game::battle::characters::controllers::indirect::ai::AiAlgorithm;
 use crate::game::battle::characters::faction::Faction;
+use crate::game::battle::characters::hit_points::HitPointsMarkBundle;
 use crate::game::battle::characters::non_player_characters::NonPlayerCharacter;
 use crate::game::battle::characters::player_characters::PlayerCharacter;
 use crate::game::battle::characters::selection_mark::SelectionMarkBundle;
@@ -22,14 +23,19 @@ pub(super) fn build_encounter(app: &mut App) {
     app.insert_resource(Encounter::default());
 
     app.add_systems(Update, finish_check.run_if(in_state(GameMode::Battle)))
+        .add_systems(OnExit(GameMode::Battle), dispose)
         .add_systems(OnEnter(GameMode::Battle), spawn_player_characters)
         .add_systems(OnExit(GameMode::Battle), despawn_player_characters)
         .add_systems(OnEnter(GameMode::Battle), spawn_enemies)
-        .add_systems(OnExit(GameMode::Battle), despawn_enemies);
+        .add_systems(OnExit(GameMode::Battle), despawn_enemies)
+        .add_systems(OnEnter(GameMode::Battle), show_score);
 }
 
 #[derive(Resource, Default)]
 pub struct Encounter {}
+
+#[derive(Component)]
+struct Disposable;
 
 fn finish_check(player_chars_q: Query<(), With<PlayerCharacter>>, enemy_chars_q: Query<(), With<NonPlayerCharacter>>, mut game_mode: ResMut<NextState<GameMode>>, mut tournament: ResMut<Tournament>) {
     let mut player_chars = 0;
@@ -64,6 +70,30 @@ fn finish_check(player_chars_q: Query<(), With<PlayerCharacter>>, enemy_chars_q:
     }
 }
 
+fn show_score(mut commands: Commands, asset_server: Res<AssetServer>, tournament: Res<Tournament>) {
+    commands.spawn((
+        Disposable,
+        NodeBundle {
+            style: Style {
+                width: Val::Percent(100.),
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Start,
+                ..default()
+            },
+            ..default()
+        })).with_children(|b1| {
+        b1.spawn(TextBundle::from_section(
+            format!("Score: {}. Loose: {}", tournament.win, tournament.loose),
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 100.0,
+                ..default()
+            },
+        ).with_text_alignment(TextAlignment::Center));
+    });
+}
+
 fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
     let mut do_spawn = |position, origin| {
         commands.spawn((
@@ -73,7 +103,8 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
             ControllerIndirect::new(DirectiveSource::PlayerInput { selected: false }),
             Arms::Regular
         )).with_children(|parent| {
-            parent.spawn(SelectionMarkBundle::new(&asset_server.deref()));
+            parent.spawn(SelectionMarkBundle::new(&asset_server));
+            parent.spawn(HitPointsMarkBundle::new(&asset_server));
         });
     };
     const SHIFT: f32 = 100.;
@@ -104,6 +135,7 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
             Arms::Regular
         )).with_children(|parent| {
             parent.spawn(SelectionMarkBundle::new(&asset_server));
+            parent.spawn(HitPointsMarkBundle::new(&asset_server));
         });
     };
 
@@ -124,6 +156,12 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
 
 fn despawn_enemies(mut commands: Commands, query: Query<Entity, With<NonPlayerCharacter>>) {
     for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn dispose(query: Query<Entity, With<Disposable>>, mut commands: Commands) {
+    for entity in &query {
         commands.entity(entity).despawn_recursive();
     }
 }
