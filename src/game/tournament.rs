@@ -17,7 +17,7 @@ pub struct Tournament {
 
 impl Tournament {
     pub fn is_chamption(&self) -> bool {
-        self.win >= 1
+        self.win >= 5
     }
 
     pub fn is_game_over(&self) -> bool {

@@ -25,7 +25,7 @@ pub(super) fn build_encounter(app: &mut App) {
         .add_systems(OnEnter(GameMode::Battle), spawn_player_characters)
         .add_systems(OnExit(GameMode::Battle), despawn_player_characters)
         .add_systems(OnEnter(GameMode::Battle), spawn_enemies)
-        .add_systems(OnEnter(GameMode::Battle), despawn_enemies);
+        .add_systems(OnExit(GameMode::Battle), despawn_enemies);
 }
 
 #[derive(Resource, Default)]
@@ -113,10 +113,10 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
     do_spawn(Vec2::new(600. - SHIFT, 0.), CharacterOrigin::Orc);
     do_spawn(Vec2::new(600., 0. + SHIFT), CharacterOrigin::Orc);
     do_spawn(Vec2::new(600., 0. - SHIFT), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600. + SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600. + SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600. - SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
-    do_spawn(Vec2::new(600. - SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600. + SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600. + SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600. - SHIFT, 0. - SHIFT), CharacterOrigin::Orc);
+    // do_spawn(Vec2::new(600. - SHIFT, 0. + SHIFT), CharacterOrigin::Orc);
 }
 
 fn despawn_enemies(mut commands: Commands, query: Query<Entity, With<NonPlayerCharacter>>) {
