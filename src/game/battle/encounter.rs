@@ -116,7 +116,7 @@ fn spawn_player_characters(mut commands: Commands, asset_server: Res<AssetServer
     do_spawn(Vec2::new(-600., SHIFT), CharacterOrigin::Red);
     do_spawn(Vec2::new(-600., -SHIFT), CharacterOrigin::Candy);
     do_spawn(Vec2::new(-600. + SHIFT, 0.), CharacterOrigin::Knife);
-    do_spawn(Vec2::new(-600. - SHIFT, 0.), CharacterOrigin::Rose);
+    do_spawn(Vec2::new(-600. - SHIFT, 0.), CharacterOrigin::Knife);
 }
 
 
@@ -140,10 +140,10 @@ fn spawn_enemies(mut commands: Commands, asset_server: Res<AssetServer>, mut tex
     };
 
     const SHIFT: f32 = 100.;
-    do_spawn(Vec2::new(600. + SHIFT, 0.), CharacterOrigin::Orc);
+    do_spawn(Vec2::new(600. + SHIFT, 0.), CharacterOrigin::Rose);
 
     for i in 0..tournament.win {
-        do_spawn(Vec2::new(600., 0. - SHIFT * (i as f32)), CharacterOrigin::Orc);
+        do_spawn(Vec2::new(600., 0. - SHIFT * (i as f32)), CharacterOrigin::Rose);
     }
     // do_spawn(Vec2::new(600. - SHIFT, 0.), CharacterOrigin::Orc);
     // do_spawn(Vec2::new(600., 0. + SHIFT), CharacterOrigin::Orc);
